@@ -42,7 +42,10 @@ const SearchAllUsers = ({allUsers, addContact, authUser}) => {
     const handleCloseModal = () => {
         setOpenModal(false);
     };
-
+    const handleAddContact = (id) => {
+        addContact(id)
+        setOpenModal(false)
+    }
     if(!allUsers) {
         return (
             <LodingUsers/>
@@ -89,7 +92,7 @@ const SearchAllUsers = ({allUsers, addContact, authUser}) => {
                 open={openModal}
                 handleClose={handleCloseModal}
                 user={user}
-                addContact={addContact}
+                onAddContact={handleAddContact}
             /> }
         </>
     )

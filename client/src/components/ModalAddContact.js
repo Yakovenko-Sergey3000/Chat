@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-export default function ModalAddContact({open, handleClose, user, addContact}) {
+export default function ModalAddContact({open, handleClose, user, onAddContact}) {
     const classes = useStyles();
     const {email, id, nick_name, sity=''} = user
     return (
@@ -79,7 +79,7 @@ export default function ModalAddContact({open, handleClose, user, addContact}) {
                             <Button
                                 variant={'outlined'}
                                 className={classes.btn}
-                                onClick={() => addContact(id)}
+                                onClick={() => onAddContact(id)}
                                 >Добавить в контакты</Button>
                         </Box>
                     </div>

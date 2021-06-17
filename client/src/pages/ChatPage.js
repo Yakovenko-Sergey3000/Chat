@@ -1,5 +1,5 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {Container, Grid, Button, Icon, AppBar, Tabs, Tab, Box, Typography} from '@material-ui/core'
+import {Container, Grid, Icon, AppBar, Tabs, Tab, Box, Typography} from '@material-ui/core'
 import PropTypes from 'prop-types';
 import { makeStyles } from "@material-ui/core/styles";
 import UserSettings from "../components/UserSettings";
@@ -10,7 +10,7 @@ import socket from '../components/socket';
 import SearchAllUsers from "../components/SearchAllUsers";
 import {Link} from "react-router-dom";
 import {useHttp} from "../hooks/http.hook";
-import Messages from "../components/Messages";
+import Dialogs from "../components/Dialogs";
 
 
 
@@ -82,13 +82,20 @@ const ChatPage = () => {
 
     const [value, setValue] = useState(0);
     const [contacts, setContacts] = useState([]);
-    const [userMess, setUserMess] = useState([])
+    const [userMess, setUserMess] = useState([
+        {
+            author: 'Alex',
+            mess: 'Hello',
+            id: 1
+        }
+    ])
 
 
     const [allUsers, setAllUsers]  = useState(null)
     const auth = useContext(AuthContext)
     const [user, setUser] = useState('')
     const { request } = useHttp()
+    const [dialog, setDialog] = useState(null)
 
     useEffect(() => {
         let user = auth.user
@@ -102,12 +109,7 @@ const ChatPage = () => {
     const logout = () => {
            socket.emit('user:exit', user.id)
         setUser('')
-
         auth.logout()
-    }
-
-    const testSocket = () => {
-        socket.emit('Test', 111);
     }
 
     const findAllUsers =  async () => {
@@ -137,6 +139,22 @@ const ChatPage = () => {
         setValue(newValue);
     };
 
+    const createRoom =  (id) => {
+        setDialog(id)
+    }
+
+    const removeContact = async (id) => {
+        await request(
+            '/api/contacts',
+            'DELETE',
+            JSON.stringify({
+                userId: user.id,
+                contactId: id
+            }),
+            {'Content-Type': 'application/json'}
+        )
+    }
+
     return (
 
             <Container fixed>
@@ -156,6 +174,8 @@ const ChatPage = () => {
                         <TabPanel value={value} index={1}>
                             <UsersContacts
                                 contacts={contacts}
+                                createRoom={createRoom}
+                                removeContact={removeContact}
                             />
                         </TabPanel>
                         <TabPanel value={value} index={2}>
@@ -171,7 +191,7 @@ const ChatPage = () => {
 
                     </Grid>
                     <Grid item xs={9} style={{ backgroundImage: 'url("https://sun9-29.userapi.com/impf/c846121/v846121899/c610b/YQ5hYoJ9fNY.jpg?size=1280x1280&quality=96&sign=0dfe59067645a7dd9e655556e198492a&type=album")' }}>
-                        <Messages/>
+                        {dialog? <Dialogs id={dialog}/> : null}
                     </Grid>
 
                 </Grid>

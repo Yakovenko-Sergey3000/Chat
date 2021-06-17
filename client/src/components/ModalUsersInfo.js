@@ -53,10 +53,12 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-export default function ModalUsersInfo({open, handleClose, user}) {
+export default function ModalUsersInfo({open, handleClose, user ,onCreateRoom, onRemoveContact}) {
     const classes = useStyles();
 
-    const {email, id} = user;
+    const {email, id, nick_name, sity=''} = user;
+
+
     return (
         <Modal
             aria-labelledby="transition-modal-title"
@@ -73,26 +75,28 @@ export default function ModalUsersInfo({open, handleClose, user}) {
             <Fade in={open}>
                 <div className={classes.paper}>
                     <Avatar alt='avatar' className={classes.avatar}/>
-                    <h2 id="transition-modal-title">{email}</h2>
+                    <h2 id="transition-modal-title">{nick_name}</h2>
                     <Box className={classes.info}>
                         <label className={classes.infoStatic}>Email:</label>
                         <span className={classes.infoUser}>{email}</span>
                     </Box>
                     <Box className={classes.info}>
                         <label className={classes.infoStatic}>Город:</label>
-                        <span className={classes.infoUser}>Tumen</span>
+                        <span className={classes.infoUser}>{sity}</span>
                     </Box>
 
                     <Box className={classes.info} mt={2}>
                         <Button
                             variant={'outlined'}
                             className={classes.btn}
+                            onClick={() => onCreateRoom(id)}
                         >Написать сообщение</Button>
                     </Box>
                     <Box className={classes.info} mt={2}>
                         <Button
                             variant={'outlined'}
                             className={classes.btnDel}
+                            onClick={() => onRemoveContact(id)}
                         >Удалить контакт</Button>
                     </Box>
                 </div>

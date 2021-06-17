@@ -25,11 +25,12 @@ const useStyle = makeStyles({
         backgroundColor: '#2a9286'
     }
 })
-const Messages = () => {
+const Dialogs = (id) => {
     const classes = useStyle();
+    
     return (
         <>
-        <p>Hello</p>
+        <p>{id.id}</p>
         <form className={classes.form}>
            <TextField
                id="outlined-full-width"
@@ -47,4 +48,4 @@ const Messages = () => {
             )
 }
 
-export default Messages;
+export default Dialogs;

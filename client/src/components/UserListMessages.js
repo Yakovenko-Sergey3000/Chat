@@ -20,7 +20,11 @@ const useStyles = makeStyles({
 const UserListMessages = ({mess}) => {
     const classes = useStyles()
 
-
+    if (!mess.length) {
+        return (
+            <p>Сообщений нет</p>
+        )
+    }
 
     return (
         <>

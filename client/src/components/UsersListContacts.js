@@ -28,7 +28,7 @@ const useStyles = makeStyles({
 
 
 
-const UserContacts = ({contacts}) => {
+const UserContacts = ({contacts, createRoom, removeContact}) => {
     const classes = useStyles()
     const [openModal, setOpenModal] = useState(false);
     const [user, setUser] = useState(null);
@@ -43,7 +43,15 @@ const UserContacts = ({contacts}) => {
     const handleCloseModal = () => {
         setOpenModal(false);
     };
+    const hadndleCreateRoom = (id) => {
+        createRoom(id)
+        setOpenModal(false)
+    }
 
+    const handleRemoveContact = (id) => {
+        removeContact(id)
+        setOpenModal(false)
+    }
     if(!contacts.length) {
         return (
             <LodingUsers/>
@@ -52,7 +60,7 @@ const UserContacts = ({contacts}) => {
     return (
         <>
        <List>
-           {contacts.map(({email, id}) => {
+           {contacts.map(({email, id, nick_name}) => {
              return (
                 <div key={id}>
                      <ListItem onClick={handleOpenModal} alignItems="flex-start"  className={classes.item} id={id}>
@@ -60,7 +68,7 @@ const UserContacts = ({contacts}) => {
                              <Avatar alt="Remy Sharp" />
                          </ListItemAvatar>
                          <ListItemText
-                             primary={email}
+                             primary={nick_name}
                              secondary={
                                  <React.Fragment>
                                      <Typography
@@ -68,7 +76,7 @@ const UserContacts = ({contacts}) => {
                                          variant="body2"
                                          color="textPrimary"
                                      >
-                                         online
+                                         {email}
                                      </Typography>
 
                                  </React.Fragment>
@@ -88,6 +96,8 @@ const UserContacts = ({contacts}) => {
                     open={openModal}
                     handleClose={handleCloseModal}
                     user={user}
+                    onCreateRoom={hadndleCreateRoom}
+                    onRemoveContact={handleRemoveContact}
                 />}
         </>
     )
