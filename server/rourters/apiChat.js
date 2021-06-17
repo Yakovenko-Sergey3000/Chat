@@ -48,6 +48,10 @@ router.post('/contacts', async (req, res) => {
 
 })
 
+router.delete('/contacts', async (req, res) => {
+    await user.removeContact(req.body)
+})
+
 router.post('/addContact', async (req, res) => {
     try {
         const {userId, contactId} = req.body;

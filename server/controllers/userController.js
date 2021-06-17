@@ -3,6 +3,13 @@ const knex = require('../configDB');
 class UserController  {
     async findAllUsers() {
         return await knex('users').select('id', 'email','nick_name')
+        // await knex('messages').insert({
+        //     user_from: 5,
+        //     user_to: 3,
+        //     room_id: 121,
+        //     mess: 'blabla'
+        //
+        // })
     }
 
     async addContact(userId, contactId) {
@@ -18,9 +25,15 @@ class UserController  {
 
 
     async findContacts(id) {
-   return await knex('contacts').select('users.email','users.id').
+   return await knex('contacts').select('users.email','users.id', 'nick_name').
        leftJoin('users', 'users.id', 'contacts.contact_id').
            where('contacts.user_id', id);
+    }
+
+    async removeContact(userId, contactId) {
+
+      const t =   await knex('contacts').select('*').where('user_id', userId).and.where('contact_id', contactId).del()
+        console.log(t)
     }
 }
 

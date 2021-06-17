@@ -56,14 +56,15 @@ app.use(cors())
 app.use('/api/auth', apiAuth);
 app.use('/api', apiChat);
 
+app.get('/createTable', (req,res) => {
+    addTable.createTables()
+    res.json('create')
 
-
-
-
+})
 
 
 try {
-    addTable.createTables()
+    // addTable.createTables()
     server.listen(PORT, () => console.log(`Server running on port: ${PORT}`))
 } catch (e) {
     console.log(e)

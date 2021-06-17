@@ -24,6 +24,11 @@ class User {
       return await this.adapter.findContacts(id)
     }
 
+    async removeContact({userId, contactId}) {
+
+      await this.adapter.removeContact(userId, contactId)
+    }
+
 
 }
 

@@ -4,6 +4,9 @@ module.exports.createTables = async () => {
     try{
         let tableUsers =  await knex.schema.hasTable('users');
         let tableFriends=  await knex.schema.hasTable('contacts');
+        let tableMess = await knex.schema.hasTable('messages');
+        let tableRooms = await knex.schema.hasTable('rooms');
+        // let tableUserMessLink  = await knex.schema.hasTable('userMessLink')
 
 
 
@@ -41,6 +44,63 @@ module.exports.createTables = async () => {
                                 .notNullable()
                         })
                 break
+            case tableMess :
+                    await knex.schema
+                        .createTable('messages', table => {
+                            table.increments('id');
+
+
+                            table
+                                .integer('room_id')
+                                .references('rooms.roomId')
+                                .notNullable()
+                            table
+                                .text('mess')
+                                .notNullable()
+                            // table
+                            //     .date('date_created')
+                            //     .notNullable()
+                            // table
+                            //     .boolean('is_read')
+                            //     .defaultTo(false)
+                        })
+                break
+            case tableRooms :
+                    await knex.schema
+                        .createTable('rooms', table => {
+                            table.increments('id');
+                            table
+                                .integer('user_from')
+
+                            table
+                                .integer('user_to')
+                            table
+                                .integer('roomId')
+                                .primary()
+                            table
+                                .string('room_name')
+
+                        })
+                break
+
+            // case tableUserMessLink :
+            //         await knex.schema
+            //             .createTable('userMessLink', table => {
+            //                 table.increments('id').primary()
+            //                 table
+            //                     .integer('user_id')
+            //                     .references('users.id')
+            //                 table
+            //                     .integer('rooms_id')
+            //                     .references('rooms.id')
+            //                 table
+            //                     .string('room_name')
+            //                     .references('users.id')
+            //                 table
+            //                     .text('last_msg')
+            //                 table.integer('unread_msg_count');
+            //             })
+            //     break
         }
 
 
