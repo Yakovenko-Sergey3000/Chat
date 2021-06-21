@@ -14,7 +14,7 @@ class User {
 
     async addContact(userId, contactId) {
         try {
-            await this.adapter.addContact(userId, contactId)
+           return  await this.adapter.addContact(userId, contactId)
         } catch (e) {
 
         }
@@ -25,9 +25,26 @@ class User {
     }
 
     async removeContact({userId, contactId}) {
-
-      await this.adapter.removeContact(userId, contactId)
+     return await this.adapter.removeContact(userId, contactId)
     }
+
+
+    async openRoom({userId, contactId}) {
+        try {
+           return  await this.adapter.openRoom(userId, contactId)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    async allUserRooms({userId}) {
+        try {
+           return  await this.adapter.allUserRoomsJoin(userId)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
 
 
 }

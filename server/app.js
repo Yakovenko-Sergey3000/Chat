@@ -58,7 +58,7 @@ app.use('/api', apiChat);
 
 app.get('/createTable', (req,res) => {
     addTable.createTables()
-    res.json('create')
+    console.log('create')
 
 })
 

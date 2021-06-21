@@ -41,7 +41,8 @@ router.get('/search', async (req, res) => {
 
 router.post('/contacts', async (req, res) => {
     try {
-       res.json(await user.findContacts(req.body.userId))
+      res.json(await user.findContacts(req.body.userId))
+
     } catch (e) {
         console.log(e)
     }
@@ -49,17 +50,30 @@ router.post('/contacts', async (req, res) => {
 })
 
 router.delete('/contacts', async (req, res) => {
-    await user.removeContact(req.body)
+    const result = await user.removeContact(req.body)
+    res.json(result)
 })
 
 router.post('/addContact', async (req, res) => {
     try {
         const {userId, contactId} = req.body;
-        await user.addContact(userId, contactId);
+      const rooms = await user.addContact(userId, contactId);
+        res.json(rooms)
     } catch (e) {
         console.log(e)
     }
+})
 
+router.post('/openRoom', async (req,res) => {
+    const result = await user.openRoom(req.body);
+    res.json(result)
+
+
+})
+
+router.post('/allUserRooms', async (req, res) => {
+    const rooms = await user.allUserRooms(req.body)
+    res.json(rooms)
 })
 
 
