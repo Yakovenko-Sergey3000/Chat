@@ -79,23 +79,24 @@ const  a11yProps = (index) => {
 }
 
 const ChatPage = () => {
-
-    const [value, setValue] = useState(0);
-    const [contacts, setContacts] = useState([]);
-    const [userMess, setUserMess] = useState([
-        {
-            author: 'Alex',
-            mess: 'Hello',
-            id: 1
-        }
-    ])
-
-
+    const [allContacts, setAllContacts] = useState([]);
     const [allUsers, setAllUsers]  = useState(null)
+
+    const [tabValue, setTabValue] = useState(0);
+    const [isContact, setIsContact] = useState(false)
+    const [rooms, setRooms] = useState([])
+
+
+
     const auth = useContext(AuthContext)
     const [user, setUser] = useState('')
     const { request } = useHttp()
-    const [dialog, setDialog] = useState(null)
+    const [dialog, setDialog] = useState([])
+
+    const classes = useStyles()
+    const handleChange = (event, newValue) => {
+        setTabValue(newValue);
+    };
 
     useEffect(() => {
         let user = auth.user
@@ -123,28 +124,35 @@ const ChatPage = () => {
            JSON.stringify({userId: user.id}),
            {'Content-Type': 'application/json'
            })
-        setContacts(res)
+
+        setAllContacts(res)
+    }
+
+    const userRooms = async () => {
+        const rooms = await request(
+            '/api/allUserRooms',
+            'POST',
+            JSON.stringify({userId: user.id}),
+            {'Content-Type': 'application/json'}
+            )
+        setRooms(rooms)
     }
     const addContact = async (contactId) => {
-        await request('/api/addContact',
+       const userContacts =  await request('/api/addContact',
             'POST',
             JSON.stringify({userId: user.id, contactId}),
             {'Content-Type': 'application/json'
             })
-
+        setIsContact(true)
+        setAllContacts(userContacts)
     }
 
-    const classes = useStyles()
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-    };
 
-    const createRoom =  (id) => {
-        setDialog(id)
-    }
+
+
 
     const removeContact = async (id) => {
-        await request(
+      const contacts = await request(
             '/api/contacts',
             'DELETE',
             JSON.stringify({
@@ -153,6 +161,43 @@ const ChatPage = () => {
             }),
             {'Content-Type': 'application/json'}
         )
+        setDialog([])
+        setAllContacts(contacts)
+
+    }
+
+
+
+    const openRoomModal = async (id) => {
+        const res = await request(
+            '/api/openRoom',
+            'POST',
+            JSON.stringify({
+                roomId: 111,
+                userId: user.id,
+                contactId: id
+            }),
+            {'Content-Type': 'application/json'}
+        )
+        const contact = allContacts.filter(item => item.id === res.user_id)
+        setIsContact(true)
+        setDialog(contact)
+
+
+    }
+    const openRoomMess = (id) => {
+        const contact = rooms.filter(item => item.id === id)
+        const res = !!allContacts.find(item => item.id === id);
+
+        setIsContact(res)
+        setDialog(contact)
+
+
+    }
+
+
+    const closeDialog = () => {
+        setDialog([])
     }
 
     return (
@@ -161,37 +206,46 @@ const ChatPage = () => {
                 <Grid container className={classes.container} >
                     <Grid item xs={3} className={classes.panel}>
                         <AppBar position={'sticky'}>
-                            <Tabs value={value} onChange={handleChange} aria-label="simple tabs example" className={classes.menuPanel}>
-                                <Tab component={Link} to='/mess'  label={<Icon><span className="material-icons.md-18">mail</span></Icon>}{...a11yProps(0)} className={classes.btn} />
+                            <Tabs value={tabValue} onChange={handleChange} aria-label="simple tabs example" className={classes.menuPanel}>
+                                <Tab component={Link} to='/mess'  onClick={userRooms} label={<Icon><span className="material-icons.md-18">mail</span></Icon>}{...a11yProps(0)} className={classes.btn} />
                                 <Tab component={Link} to='/contacts' onClick={userContacts} label={<Icon><span className="material-icons.md-18">perm_contact_calendar</span></Icon>} {...a11yProps(1)} className={classes.btn} />
                                 <Tab component={Link} to='/search' onClick={findAllUsers} label={<Icon><span className="material-icons.md-18">search</span></Icon>} {...a11yProps(2)} className={classes.btn} />
                                 <Tab component={Link} to='/settings' label={<Icon><span className="material-icons.md-18">build_circle</span></Icon>} {...a11yProps(3)} className={classes.btn}/>
                             </Tabs>
                         </AppBar>
-                        <TabPanel value={value} index={0}>
-                            <UserListMessages mess={userMess} />
+                        <TabPanel value={tabValue} index={0}>
+                            <UserListMessages
+                                rooms={rooms}
+                                openRoom={openRoomMess}/>
                         </TabPanel>
-                        <TabPanel value={value} index={1}>
+                        <TabPanel value={tabValue} index={1}>
                             <UsersContacts
-                                contacts={contacts}
-                                createRoom={createRoom}
+                                contacts={allContacts}
+                                openRoom={openRoomModal}
                                 removeContact={removeContact}
                             />
                         </TabPanel>
-                        <TabPanel value={value} index={2}>
+                        <TabPanel value={tabValue} index={2}>
                             <SearchAllUsers
                                 allUsers={allUsers}
                                 addContact={addContact}
                                 authUser={user.id}
                             />
                         </TabPanel>
-                        <TabPanel value={value} index={3}>
+                        <TabPanel value={tabValue} index={3}>
                             <UserSettings logout={logout} user={user} />
                         </TabPanel>
 
                     </Grid>
-                    <Grid item xs={9} style={{ backgroundImage: 'url("https://sun9-29.userapi.com/impf/c846121/v846121899/c610b/YQ5hYoJ9fNY.jpg?size=1280x1280&quality=96&sign=0dfe59067645a7dd9e655556e198492a&type=album")' }}>
-                        {dialog? <Dialogs id={dialog}/> : null}
+                    {/*<Grid item xs={9} style={{ backgroundImage: 'url("https://sun9-29.userapi.com/impf/c846121/v846121899/c610b/YQ5hYoJ9fNY.jpg?size=1280x1280&quality=96&sign=0dfe59067645a7dd9e655556e198492a&type=album")' }}>*/}
+                    <Grid item xs={9} style={{ background: 'rgba(245,238,196,0.78)' }}>
+
+                    {dialog.length? <Dialogs
+                            contact={dialog}
+                            closeDialog={closeDialog}
+                            isContact={isContact}
+                            addContact={addContact}
+                        /> : null}
                     </Grid>
 
                 </Grid>

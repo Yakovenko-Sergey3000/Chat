@@ -10,7 +10,7 @@ import {
 } from '@material-ui/core'
 import {makeStyles} from "@material-ui/core/styles";
 import LodingUsers from "./LodingUsers";
-import ModalUsersInfo from "./ModalUsersInfo";
+import ModalContacts from "./ModalContacts";
 
 
 const useStyles = makeStyles({
@@ -28,10 +28,14 @@ const useStyles = makeStyles({
 
 
 
-const UserContacts = ({contacts, createRoom, removeContact}) => {
+const UserContacts = ({contacts, openRoom, removeContact}) => {
     const classes = useStyles()
     const [openModal, setOpenModal] = useState(false);
     const [user, setUser] = useState(null);
+
+
+
+
 
     const handleOpenModal = (e) => {
        const id = e.target.closest('li').getAttribute('id') // Прокидывает id в модальное окно
@@ -43,8 +47,8 @@ const UserContacts = ({contacts, createRoom, removeContact}) => {
     const handleCloseModal = () => {
         setOpenModal(false);
     };
-    const hadndleCreateRoom = (id) => {
-        createRoom(id)
+    const hadndleOpenRoom = (id) => {
+        openRoom(id)
         setOpenModal(false)
     }
 
@@ -52,55 +56,63 @@ const UserContacts = ({contacts, createRoom, removeContact}) => {
         removeContact(id)
         setOpenModal(false)
     }
-    if(!contacts.length) {
-        return (
-            <LodingUsers/>
-        )
+
+
+
+    const RenderList = () => {
+          return  contacts.map(({email, id, nick_name}) => {
+                    return (
+                        <div key={id}>
+                            <ListItem onClick={handleOpenModal} alignItems="flex-start"  className={classes.item} id={id}>
+                                <ListItemAvatar>
+                                    <Avatar alt="Remy Sharp" />
+                                </ListItemAvatar>
+                                <ListItemText
+                                    primary={nick_name}
+                                    secondary={
+                                        <React.Fragment>
+                                            <Typography
+                                                component="span"
+                                                variant="body2"
+                                                color="textPrimary"
+                                            >
+                                                {email}
+                                            </Typography>
+
+                                        </React.Fragment>
+                                    }
+                                />
+
+                            </ListItem>
+                            <Divider variant="inset" component="li" />
+                        </div>
+                    )
+                })
+
     }
+
+
+
+
+    const render = RenderList()
     return (
         <>
        <List>
-           {contacts.map(({email, id, nick_name}) => {
-             return (
-                <div key={id}>
-                     <ListItem onClick={handleOpenModal} alignItems="flex-start"  className={classes.item} id={id}>
-                         <ListItemAvatar>
-                             <Avatar alt="Remy Sharp" />
-                         </ListItemAvatar>
-                         <ListItemText
-                             primary={nick_name}
-                             secondary={
-                                 <React.Fragment>
-                                     <Typography
-                                         component="span"
-                                         variant="body2"
-                                         color="textPrimary"
-                                     >
-                                         {email}
-                                     </Typography>
-
-                                 </React.Fragment>
-                             }
-                         />
-
-                     </ListItem>
-                    <Divider variant="inset" component="li" />
-                </div>
-
-             )
-
-           })}
+           {contacts.length ? render: <LodingUsers/> }
        </List>
             {!openModal? null:
-                <ModalUsersInfo
+                <ModalContacts
                     open={openModal}
                     handleClose={handleCloseModal}
                     user={user}
-                    onCreateRoom={hadndleCreateRoom}
+                    onOpenRoom={hadndleOpenRoom}
                     onRemoveContact={handleRemoveContact}
                 />}
         </>
     )
+
 }
+
+
 
 export default UserContacts;

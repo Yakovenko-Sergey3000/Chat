@@ -53,11 +53,10 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-export default function ModalUsersInfo({open, handleClose, user ,onCreateRoom, onRemoveContact}) {
+export default function ModalDialogInfo({open, handleClose, user}) {
     const classes = useStyles();
 
-    const {email, id, nick_name, sity=''} = user;
-
+    const {email, id, nick_name, sity} = user;
 
     return (
         <Modal
@@ -89,15 +88,15 @@ export default function ModalUsersInfo({open, handleClose, user ,onCreateRoom, o
                         <Button
                             variant={'outlined'}
                             className={classes.btn}
-                            onClick={() => onCreateRoom(id)}
-                        >Написать сообщение</Button>
+
+                        >Очисить сообщения</Button>
                     </Box>
                     <Box className={classes.info} mt={2}>
                         <Button
                             variant={'outlined'}
                             className={classes.btnDel}
-                            onClick={() => onRemoveContact(id)}
-                        >Удалить контакт</Button>
+
+                        >Удалить диалог</Button>
                     </Box>
                 </div>
             </Fade>

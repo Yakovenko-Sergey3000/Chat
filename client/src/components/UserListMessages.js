@@ -17,10 +17,10 @@ const useStyles = makeStyles({
 
 
 
-const UserListMessages = ({mess}) => {
+const UserListMessages = ({rooms, openRoom}) => {
     const classes = useStyles()
 
-    if (!mess.length) {
+    if (!rooms.length) {
         return (
             <p>Сообщений нет</p>
         )
@@ -28,18 +28,16 @@ const UserListMessages = ({mess}) => {
 
     return (
         <>
-
-
             <List>
-                {mess.map(({author, mess, id}) => {
+                {rooms.map(({nick_name, email, id}) => {
                     return (
-                           <div className={classes.item} key={id}>
+                           <div className={classes.item} key={id} onClick={() => openRoom(id)} >
                                <ListItem alignItems="flex-start">
                                    <ListItemAvatar>
                                        <Avatar alt="Remy Sharp" />
                                    </ListItemAvatar>
                                    <ListItemText
-                                       primary={author}
+                                       primary={nick_name}
                                        secondary={
                                            <React.Fragment>
                                                <Typography
@@ -47,7 +45,7 @@ const UserListMessages = ({mess}) => {
                                                    variant="body2"
                                                    color="textPrimary"
                                                >
-                                                   {mess}
+                                                   {email}
                                                </Typography>
 
                                            </React.Fragment>
