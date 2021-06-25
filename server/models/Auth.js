@@ -21,8 +21,11 @@ class Auth {
     }
 
     async loginUser({email, password}) {
+
       try {
           const candidate = await this.adapter.findUser('email',email) // (nameColl, params)
+            const {id, nick_name,  sity, status} = candidate[0];
+
               if(!candidate.length) {
                   throw new Error('Пользователя не существует')
               }
@@ -31,14 +34,7 @@ class Auth {
                  throw new Error('Неверный пароль')
              }
 
-             const dataUser= {
-                id: candidate[0].id,
-                email: candidate[0].email,
-                nickName: candidate[0]['nick_name']
-            }
-
-    
-            return dataUser
+            return {id, nick_name,email,sity,status}
 
       } catch (e) {
           throw e

@@ -10,12 +10,16 @@ const KnexSessionStore = require('connect-session-knex')(session);
 const configDB = require('./configDB');
 const apiAuth = require('./rourters/apiAuth');
 const apiChat = require('./rourters/apiChat');
+const apiUpdateUser = require('./rourters/apiUpdateUser');
+
 
 const cors = require('cors')
 const addTable = require('./controllers/createTables');
 
 const io = require('socket.io')(server)
 const hadlersUser = require('./components/handlersUser')
+const hadlersMess = require('./components/handlersMess')
+
 
 
 
@@ -37,14 +41,14 @@ app.use(
     })
 )
 io.on('connection', (socket) => {
-
-    console.log('connection' + ' '+ new Date().getHours() + ':' + new Date().getMinutes());
+    console.log('connection' + ' ' + new Date().getHours() + ':' + new Date().getMinutes());
     hadlersUser(io, socket);
+    hadlersMess(io, socket);
     socket.on('disconnect', () => {
-        console.log('DISconnect' + ' '+ new Date().getHours() + ':' + new Date().getMinutes());
+        console.log('DISconnect' + ' ' + new Date().getHours() + ':' + new Date().getMinutes());
     })
-})
 
+})
 
 
 let PORT = process.env.PORT || 5000;
@@ -55,6 +59,7 @@ app.use(cookieParser())
 app.use(cors())
 app.use('/api/auth', apiAuth);
 app.use('/api', apiChat);
+app.use('/api', apiUpdateUser)
 
 app.get('/createTable', (req,res) => {
     addTable.createTables()

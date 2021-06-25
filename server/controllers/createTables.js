@@ -47,7 +47,22 @@ module.exports.createTables = async () => {
             case tableMess :
                     await knex.schema
                         .createTable('messages', table => {
-
+                            table.increments('id').primary();
+                            table
+                                .integer('room_id')
+                                .references('rooms.id')
+                                .notNullable()
+                            table
+                                .integer('user_id')
+                                .references('users.id')
+                                .notNullable()
+                            table
+                                .text('mess')
+                            table
+                                .boolean('isRead')
+                                .defaultTo(false)
+                            table
+                                .dateTime('time')
                         })
 
                 break
