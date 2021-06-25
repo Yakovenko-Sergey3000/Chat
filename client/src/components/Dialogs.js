@@ -1,8 +1,8 @@
 import {AppBar, Avatar, Box, Button, Icon, IconButton, Paper, TextField, Toolbar, Typography} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import ModalDialogInfo from "./ModalDialogInfo";
-
+import date from 'date-and-time'
 
 const useStyle = makeStyles({
     infoBar: {
@@ -95,7 +95,7 @@ const useStyle = makeStyles({
         wordWrap: 'break-word',
         marginBottom: '10px'
     },
-    date: {
+    time: {
         fontSize: '13px',
         color: '#8b8686',
         position: 'absolute',
@@ -115,7 +115,10 @@ const useStyle = makeStyles({
         width: '700px',
         borderRadius: 0,
         background: '#fff',
-        border: 0
+        border: 0,
+        '&:focus': {
+            border: 'none',
+        }
     },
     btnSend: {
         width: '160px',
@@ -128,12 +131,15 @@ const useStyle = makeStyles({
 })
 
 
-const Dialogs = ({contact, closeDialog, isContact, addContact}) => {
+const Dialogs = ({contact, closeDialog, isContact, addContact, allHistoryMess = [], sendMess}) => {
     const classes = useStyle();
     const [menu, setMenu] = useState(false);
-    const [open, setOpen] = useState(false)
+    const [open, setOpen] = useState(false);
+    const [text, setText] = useState('')
 
-    const {email, id, nick_name} = contact[0];
+    const {email, id, nick_name, room_id} = contact[0];
+
+
 
 
     const openMenu= () => {
@@ -151,64 +157,42 @@ const Dialogs = ({contact, closeDialog, isContact, addContact}) => {
         setOpen(false)
     }
 
+    const sendMessage = () => {
+        sendMess(id, text, room_id, new Date())
+        setText('')
+    }
+
+    const keyPressMess = (key) => {
+        if (key === 'Enter') {
+            sendMessage()
+        }
+    }
 
     const messagesArray = () => {
+        let flex = ''
+        let i = 1
         return (
             <Box className={classes.dialog}>
-            <Box className={classes.mess}>
-                <Avatar/>
-                <Paper className={classes.messBody}>
-                    <Typography className={classes.text}>
-                        ИспользуйнастройкидлядобавлениилиудаленияграницМожноустанавливатькаквсесразутакикаждуючастьпоотдельности
+                {allHistoryMess.map(({mess, time, user_id}) => {
+                   id === user_id? flex = '' : flex = 'flex-end';
 
-                    </Typography>
-                    <Typography className={classes.date}>18:15</Typography>
-                </Paper>
+                    const dateCreatedMess = new Date(Date.parse(time))
+                    const formatTime = date.format(dateCreatedMess, 'DD-MM-YY hh:mm')
+                   return (
+                       <Box component={'li'} key={i++} className={classes.mess} style={{justifyContent: flex}}>
+                           <Avatar src='https://sun1-22.userapi.com/s/v1/ig1/OyoSDh3OZhJHiro1HKy1wjENMHSZo9PX-n8OAcC-SJ-XZouCIYcTCdwsGq5Zf0MYMH0Sbd2y.jpg?size=200x0&quality=96&crop=0,0,947,1406&ava=1'/>
+                           <Paper className={classes.messBody}>
+                               <Typography className={classes.text}>
+                                   {mess}
+                               </Typography>
+                               <Typography className={classes.time}>{formatTime}</Typography>
+                           </Paper>
+                       </Box>
+                   )
+                })}
             </Box>
 
-        <Box className={classes.mess}>
-            <Avatar/>
-            <Paper className={classes.messBody}>
-                <Typography className={classes.text}>
-                    ИспользуйнастройкидлядобавлениилиудаленияграницМожноустанавливатькаквсесразутакикаждуючастьпоотдельности
 
-                </Typography>
-                <Typography className={classes.date}>18:15</Typography>
-            </Paper>
-        </Box>
-
-        <Box className={classes.mess}>
-            <Avatar/>
-            <Paper className={classes.messBody}>
-                <Typography className={classes.text}>
-                    ИспользуйнастройкидлядобавлениилиудаленияграницМожноустанавливатькаквсесразутакикаждуючастьпоотдельности
-
-                </Typography>
-                <Typography className={classes.date}>18:15</Typography>
-            </Paper>
-        </Box>
-
-                <Box className={classes.mess}>
-                    <Avatar/>
-                    <Paper className={classes.messBody}>
-                        <Typography className={classes.text}>
-                            ИспользуйнастройкидлядобавлениилиудаленияграницМожноустанавливатькаквсесразутакикаждуючастьпоотдельности
-
-                        </Typography>
-                        <Typography className={classes.date}>18:15</Typography>
-                    </Paper>
-                </Box>
-                <Box className={classes.mess}>
-                    <Avatar/>
-                    <Paper className={classes.messBody}>
-                        <Typography className={classes.text}>
-                            ИспользуйнастройкидлядобавлениилиудаленияграницМожноустанавливатькаквсесразутакикаждуючастьпоотдельности
-
-                        </Typography>
-                        <Typography className={classes.date}>18:15</Typography>
-                    </Paper>
-                </Box>
-            </Box>
         )
     }
 
@@ -255,19 +239,24 @@ const Dialogs = ({contact, closeDialog, isContact, addContact}) => {
 
 
 
-        <form className={classes.form}>
+        <div className={classes.form} >
            <TextField
                id="outlined-full-width"
                variant='outlined'
                fullWidth
               placeholder="Введите сообщение"
                className={classes.input}
+               value={text}
+               onChange={(e) => setText(e.target.value)}
+               onKeyDown={e => keyPressMess(e.key)}
+
            />
             <Button
                 variant="text"
                 className={classes.btnSend}
+                onClick={() => sendMessage()}
             >Отправить</Button>
-        </form>
+        </div>
 
             <ModalDialogInfo
                 open={open}

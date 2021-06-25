@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Avatar, Grid, Button, Input, InputLabel, Icon, Box} from '@material-ui/core'
 import {makeStyles} from "@material-ui/core/styles";
 
@@ -32,31 +32,75 @@ const useStyles = makeStyles({
 
 })
 
-const UserSettings = ({logout, user}) => {
+const UserSettings = ({logout, user, updateUser}) => {
     const classes = useStyles()
-    const {nickName, sity=''} = user;
+    const {nick_name, sity, id} = user;
+    const [nickInput, setNickInput] = useState(nick_name)
+    const [sityInput, setSityInput] = useState(sity)
+    const [avatar, setAvatar] = useState('')
+    const [disableBtn, setDisableBtn] = useState(true)
+
+    const inputFile = (e) => {
+        setAvatar(e.target.value)
+    }
+
+
+    // useEffect(() => {
+    //     setSityInput(sity)
+    //     setNickInput(nick_name)
+    // }, [])
+    useEffect(() => {
+
+        if(sityInput === sity && nickInput === nick_name && avatar === '') {
+            setDisableBtn(true)
+        } else {
+            setDisableBtn(false)
+        }
+
+    }, [nickInput, sityInput, avatar])
+
+
+    const onUpdate = () => {
+        updateUser({
+            nick_name:nickInput,
+            sity: sityInput,
+            userId: id
+        })
+    }
+
     return (
 
             <Grid container direction={'column'} alignItems={'center'} component={'div'}>
 
 
-                <Avatar className={classes.avatar} src='https://i.pinimg.com/236x/74/05/5f/74055f83bfbdc20fdc1f9d1fc116fd26.jpg'/>
+                <Avatar className={classes.avatar} src={avatar}/>
 
                        <form>
                            <InputLabel className={classes.fakeInputAddAvatar} htmlFor={'addAvatar'}><Icon><span className="material-icons-outlined.md-36">add_a_photo</span></Icon><span>Добавить фото</span></InputLabel>
 
-                           <Input className={classes.inputAddAvatar} id={'addAvatar'} type={'file'}laceholder={'Добавить аватарку'}/>
+                           <Input onChange={inputFile} className={classes.inputAddAvatar} id={'addAvatar'} type={'file'}laceholder={'Добавить аватарку'}/>
 
                            <Box mt={4} component={'div'}>
                                <InputLabel>Изменить ник:</InputLabel>
-                               <Input type={'text'} value={nickName}/>
+                               <Input type={'text'}
+                                      value={nickInput}
+                                      onChange={(e) => setNickInput(e.target.value)}/>
                            </Box>
                            <Box mt={2}>
                                <InputLabel>Город:</InputLabel>
-                               <Input type={'text'} value={sity}/>
+                               <Input
+                                   type={'text'}
+                                   value={sityInput}
+                                   onChange={(e) => setSityInput(e.target.value)}
+                               />
                            </Box>
                         <Box>
-                            <Button variant={'outlined'} className={classes.btn}>Сохранить настройки</Button>
+                            <Button
+                                variant={'outlined'}
+                                className={classes.btn}
+                                onClick={onUpdate}
+                                disabled={disableBtn}
+                            >Сохранить настройки</Button>
 
                         </Box>
 

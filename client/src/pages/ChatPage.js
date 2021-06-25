@@ -1,4 +1,4 @@
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext, useEffect, useCallback, useLayoutEffect, useRef} from 'react';
 import {Container, Grid, Icon, AppBar, Tabs, Tab, Box, Typography} from '@material-ui/core'
 import PropTypes from 'prop-types';
 import { makeStyles } from "@material-ui/core/styles";
@@ -11,6 +11,8 @@ import SearchAllUsers from "../components/SearchAllUsers";
 import {Link} from "react-router-dom";
 import {useHttp} from "../hooks/http.hook";
 import Dialogs from "../components/Dialogs";
+
+
 
 
 
@@ -88,12 +90,17 @@ const ChatPage = () => {
 
 
 
-    const auth = useContext(AuthContext)
     const [user, setUser] = useState('')
     const { request } = useHttp()
     const [dialog, setDialog] = useState([])
+    const [roomMess, setRoomMess] = useState([])
+    const firstRender = useRef(false)
 
+
+    const auth = useContext(AuthContext)
     const classes = useStyles()
+
+
     const handleChange = (event, newValue) => {
         setTabValue(newValue);
     };
@@ -105,6 +112,7 @@ const ChatPage = () => {
             socket.emit('user:login', user.id)
         }
     }, [auth.user])
+
 
 
     const logout = () => {
@@ -136,6 +144,8 @@ const ChatPage = () => {
             {'Content-Type': 'application/json'}
             )
         setRooms(rooms)
+       await userContacts()
+
     }
     const addContact = async (contactId) => {
        const userContacts =  await request('/api/addContact',
@@ -148,9 +158,6 @@ const ChatPage = () => {
     }
 
 
-
-
-
     const removeContact = async (id) => {
       const contacts = await request(
             '/api/contacts',
@@ -161,44 +168,82 @@ const ChatPage = () => {
             }),
             {'Content-Type': 'application/json'}
         )
+
         setDialog([])
         setAllContacts(contacts)
 
     }
 
 
+    const updateUser = async (data) => {
+       const res = await request(
+            '/api/settings',
+            'PUT',
+            JSON.stringify(data),
+            {'Content-Type': 'application/json'}
+        )
+
+    }
+
+
 
     const openRoomModal = async (id) => {
-        const res = await request(
+        const res =  await request(
             '/api/openRoom',
             'POST',
             JSON.stringify({
-                roomId: 111,
                 userId: user.id,
                 contactId: id
             }),
             {'Content-Type': 'application/json'}
         )
+
         const contact = allContacts.filter(item => item.id === res.user_id)
         setIsContact(true)
+        contact[0].room_id = res.room_id
         setDialog(contact)
-
+        getMessRoom(res.room_id)
 
     }
-    const openRoomMess = (id) => {
+
+    const openRoomMess = (id, roomId) => {
         const contact = rooms.filter(item => item.id === id)
         const res = !!allContacts.find(item => item.id === id);
-
         setIsContact(res)
         setDialog(contact)
-
-
+        getMessRoom(roomId)
     }
 
 
     const closeDialog = () => {
         setDialog([])
     }
+
+    const getMessRoom = (roomId) => {
+        socket.emit('room:getMessRoom', roomId)
+        socket.on('setMessRoom', data => {
+            setRoomMess(data)
+        })
+    }
+
+    const sendMess = (contactId, text, roomId, created) => {
+       socket.emit('user:sendMess', {
+           contactId, text, roomId, userId: user.id, created
+       })
+
+    }
+    socket.on('massageInRoom', (res) => {
+        setRoomMess(res)
+    })
+
+    useLayoutEffect(() => {
+        if(firstRender.current) {
+            userRooms()
+        } else {
+            firstRender.current = true
+        }
+
+    }, [roomMess])
 
     return (
 
@@ -216,7 +261,10 @@ const ChatPage = () => {
                         <TabPanel value={tabValue} index={0}>
                             <UserListMessages
                                 rooms={rooms}
-                                openRoom={openRoomMess}/>
+                                openRoom={openRoomMess}
+
+                            />
+
                         </TabPanel>
                         <TabPanel value={tabValue} index={1}>
                             <UsersContacts
@@ -233,18 +281,24 @@ const ChatPage = () => {
                             />
                         </TabPanel>
                         <TabPanel value={tabValue} index={3}>
-                            <UserSettings logout={logout} user={user} />
+                            <UserSettings
+                                logout={logout}
+                                user={user}
+                                updateUser={updateUser}
+                            />
                         </TabPanel>
 
                     </Grid>
                     {/*<Grid item xs={9} style={{ backgroundImage: 'url("https://sun9-29.userapi.com/impf/c846121/v846121899/c610b/YQ5hYoJ9fNY.jpg?size=1280x1280&quality=96&sign=0dfe59067645a7dd9e655556e198492a&type=album")' }}>*/}
                     <Grid item xs={9} style={{ background: 'rgba(245,238,196,0.78)' }}>
 
-                    {dialog.length? <Dialogs
+                    {dialog.length ? <Dialogs
                             contact={dialog}
                             closeDialog={closeDialog}
                             isContact={isContact}
                             addContact={addContact}
+                            sendMess={sendMess}
+                            allHistoryMess={roomMess}
                         /> : null}
                     </Grid>
 

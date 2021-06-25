@@ -8,10 +8,8 @@ export const useAuth = () => {
     const [cookie,,removeCookie] = useCookies(['idSess'])
 
     const login = useCallback((id, dataUser) => {
-
         setIdSess(id)
         setUser(dataUser)
-       
     },[])
 
 
