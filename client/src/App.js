@@ -4,10 +4,6 @@ import {AuthContext} from "./context/AuthContext";
 import useRoutes from './components/routes'
 import {BrowserRouter} from "react-router-dom";
 import LodingChat from "./components/LodingChat";
-import {SocketProvider} from "./components/socket";
-import {SocketContext} from "./context/SocketContext";
-
-
 
 
 const App = () => {

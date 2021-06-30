@@ -1,4 +1,4 @@
-import React, {useState, useContext, useEffect, useCallback, useLayoutEffect, useRef} from 'react';
+import React, {useState, useContext, useEffect,useRef} from 'react';
 import {Container, Grid, Icon, AppBar, Tabs, Tab, Box, Typography} from '@material-ui/core'
 import PropTypes from 'prop-types';
 import { makeStyles } from "@material-ui/core/styles";
@@ -111,6 +111,7 @@ const ChatPage = () => {
             setUser(user)
             socket.emit('user:login', user.id)
         }
+
     }, [auth.user])
 
 
@@ -143,8 +144,15 @@ const ChatPage = () => {
             JSON.stringify({userId: user.id}),
             {'Content-Type': 'application/json'}
             )
-        setRooms(rooms)
-       await userContacts()
+        const roomName = rooms.map(item => {
+            if (item.type === 'privat') {
+                return {...item, room_name: item.users[0].nick_name}
+            } else {
+                return item
+            }
+        })
+        setRooms(roomName)
+        await userContacts()
 
     }
     const addContact = async (contactId) => {
@@ -199,19 +207,37 @@ const ChatPage = () => {
         )
 
         const contact = allContacts.filter(item => item.id === res.user_id)
-        setIsContact(true)
-        contact[0].room_id = res.room_id
-        setDialog(contact)
-        getMessRoom(res.room_id)
+        console.log(contact)
+        // setIsContact(true)
+        // contact[0].room_id = res.room_id
+        // setDialog(contact)
+        // getMessRoom(res.room_id)
+        // console.log(res)
 
     }
 
-    const openRoomMess = (id, roomId) => {
-        const contact = rooms.filter(item => item.id === id)
-        const res = !!allContacts.find(item => item.id === id);
+    const createGroupRoom = async (users) => {
+        if(users.length > 1) {
+           await request(
+               '/api/createGroup',
+               'POST',
+               JSON.stringify({
+                   userAdmin: user.id,
+                   arrayUsers: users
+               }),
+               {'Content-Type': 'application/json'}
+           )
+        } else {
+            console.log('not group')
+        }
+    }
+
+    const openRoomMess = (room_id) => {
+        const room = rooms.filter(item => item.id === room_id)
+        const res = !!allContacts.find(item => item.id === room_id);
         setIsContact(res)
-        setDialog(contact)
-        getMessRoom(roomId)
+        setDialog(room)
+        getMessRoom(room_id)
     }
 
 
@@ -236,7 +262,7 @@ const ChatPage = () => {
         setRoomMess(res)
     })
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if(firstRender.current) {
             userRooms()
         } else {
@@ -244,6 +270,8 @@ const ChatPage = () => {
         }
 
     }, [roomMess])
+
+
 
     return (
 
@@ -262,7 +290,8 @@ const ChatPage = () => {
                             <UserListMessages
                                 rooms={rooms}
                                 openRoom={openRoomMess}
-
+                                allContacts={allContacts}
+                                createGroupRoom={createGroupRoom}
                             />
 
                         </TabPanel>
@@ -293,7 +322,7 @@ const ChatPage = () => {
                     <Grid item xs={9} style={{ background: 'rgba(245,238,196,0.78)' }}>
 
                     {dialog.length ? <Dialogs
-                            contact={dialog}
+                            room={dialog}
                             closeDialog={closeDialog}
                             isContact={isContact}
                             addContact={addContact}

@@ -1,6 +1,6 @@
 import {AppBar, Avatar, Box, Button, Icon, IconButton, Paper, TextField, Toolbar, Typography} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import ModalDialogInfo from "./ModalDialogInfo";
 import date from 'date-and-time'
 
@@ -79,8 +79,8 @@ const useStyle = makeStyles({
         alignItems: 'flex-end'
     },
     messBody: {
-        minWidth: '150px',
-        maxWidth: '250px',
+        minWidth: '250px',
+        maxWidth: '350px',
         marginLeft: '10px',
         padding: '10px',
         position: 'relative',
@@ -90,9 +90,14 @@ const useStyle = makeStyles({
         borderRadius: '10px 10px 10px 0',
 
     },
+    nick_name: {
+        fontSize: '12px',
+        fontWeight: '700'
+    },
     text: {
         maxWidth: '250px',
         wordWrap: 'break-word',
+        // marginTop:'5px',
         marginBottom: '10px'
     },
     time: {
@@ -100,7 +105,7 @@ const useStyle = makeStyles({
         color: '#8b8686',
         position: 'absolute',
         right: '20px',
-        bottom: '3px'
+        bottom: '1px'
     },
 
     form: {
@@ -131,13 +136,14 @@ const useStyle = makeStyles({
 })
 
 
-const Dialogs = ({contact, closeDialog, isContact, addContact, allHistoryMess = [], sendMess}) => {
+const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [], sendMess}) => {
     const classes = useStyle();
     const [menu, setMenu] = useState(false);
     const [open, setOpen] = useState(false);
     const [text, setText] = useState('')
 
-    const {email, id, nick_name, room_id} = contact[0];
+    const {id: room_id, room_name, users, type} = room[0];
+
 
 
 
@@ -158,8 +164,16 @@ const Dialogs = ({contact, closeDialog, isContact, addContact, allHistoryMess = 
     }
 
     const sendMessage = () => {
-        sendMess(id, text, room_id, new Date())
-        setText('')
+
+        if (type=== 'privat') {
+            sendMess(users[0].id, text, room_id, new Date())
+            setText('')
+        } else {
+            const idUsers = users.map(({id}) => id)
+            sendMess(idUsers, text, room_id, new Date())
+            setText('')
+        }
+
     }
 
     const keyPressMess = (key) => {
@@ -170,21 +184,26 @@ const Dialogs = ({contact, closeDialog, isContact, addContact, allHistoryMess = 
 
     const messagesArray = () => {
         let flex = ''
-        let i = 1
         return (
             <Box className={classes.dialog}>
-                {allHistoryMess.map(({mess, time, user_id}) => {
-                   id === user_id? flex = '' : flex = 'flex-end';
+                {allHistoryMess.map(({id,mess, time, user_id, nick_name}) => {
+
+                    users.find(item => item.id === user_id) ? flex = '' : flex = 'flex-end';
 
                     const dateCreatedMess = new Date(Date.parse(time))
                     const formatTime = date.format(dateCreatedMess, 'DD-MM-YY hh:mm')
                    return (
-                       <Box component={'li'} key={i++} className={classes.mess} style={{justifyContent: flex}}>
-                           <Avatar src='https://sun1-22.userapi.com/s/v1/ig1/OyoSDh3OZhJHiro1HKy1wjENMHSZo9PX-n8OAcC-SJ-XZouCIYcTCdwsGq5Zf0MYMH0Sbd2y.jpg?size=200x0&quality=96&crop=0,0,947,1406&ava=1'/>
+                       <Box component={'li'} key={id} className={classes.mess} style={{justifyContent: flex}}>
+                           <Avatar src=''/>
                            <Paper className={classes.messBody}>
-                               <Typography className={classes.text}>
-                                   {mess}
-                               </Typography>
+                               <Box>
+                                   <Typography className={classes.nick_name}>
+                                       {nick_name}
+                                   </Typography>
+                                   <Typography className={classes.text}>
+                                       {mess}
+                                   </Typography>
+                               </Box>
                                <Typography className={classes.time}>{formatTime}</Typography>
                            </Paper>
                        </Box>
@@ -203,7 +222,7 @@ const Dialogs = ({contact, closeDialog, isContact, addContact, allHistoryMess = 
 
             <Toolbar className={classes.infoBar}>
                 <Box>
-                    <Typography className={classes.nickContact}>{nick_name}</Typography>
+                    <Typography className={classes.nickContact}>{room_name}</Typography>
                     <Typography className={classes.statusContact}>online</Typography>
                 </Box>
             <IconButton onClick={openMenu} onPointerLeave={closeMenu}>
@@ -221,14 +240,14 @@ const Dialogs = ({contact, closeDialog, isContact, addContact, allHistoryMess = 
             >
                 <Button className={classes.btnMunu} onClick={handleOpenModal}>Открыть профиль</Button>
                 {isContact?
-                     null : <Button onClick={() => addContact(id)} className={classes.btnMunu}>Добавить контакт</Button>
+                     null : <Button onClick={() => addContact(users[0].id)} className={classes.btnMunu}>Добавить контакт</Button>
                 }
                 <Button onClick={() => closeDialog()} className={`${classes.btnMunu} ${classes.btnClose}`}>Закрыть диалог</Button>
             </Paper> }
 
             {isContact ?
                 null : <Paper className={classes.isContact}>
-                        <Button onClick={() => addContact(id)} className={classes.btnIsContact}>Добавить контакт</Button>
+                        <Button onClick={() => addContact(users[0].id)} className={classes.btnIsContact}>Добавить контакт</Button>
                         <Button className={`${classes.btnIsContact} ${classes.btnClose}`}>Удалить диалог</Button>
                     </Paper>
             }
@@ -261,7 +280,7 @@ const Dialogs = ({contact, closeDialog, isContact, addContact, allHistoryMess = 
             <ModalDialogInfo
                 open={open}
                 handleClose={handleCloseModal}
-                user={contact[0]}
+                user={room[0]}
             />
         </>
             )

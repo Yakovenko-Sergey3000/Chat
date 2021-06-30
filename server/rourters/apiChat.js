@@ -67,9 +67,13 @@ router.post('/addContact', async (req, res) => {
 router.post('/openRoom', async (req,res) => {
     const result = await user.openRoom(req.body);
     res.json(result)
-
-
 })
+
+router.post('/createGroup', async (req, res) => {
+  await user.createGroupRoom(req.body)
+   
+})
+
 
 router.post('/allUserRooms', async (req, res) => {
     const rooms = await user.allUserRooms(req.body)

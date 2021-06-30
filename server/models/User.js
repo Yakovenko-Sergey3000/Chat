@@ -37,6 +37,14 @@ class User {
         }
     }
 
+    async createGroupRoom({userAdmin, arrayUsers}) {
+        try {
+            await this.adapter.createGroupRoom(userAdmin,arrayUsers)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     async allUserRooms({userId}) {
         try {
            return  await this.adapter.allUserRoomsJoin(userId)

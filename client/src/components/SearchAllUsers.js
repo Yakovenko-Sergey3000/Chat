@@ -62,7 +62,7 @@ const SearchAllUsers = ({allUsers, addContact, authUser}) => {
                 return (
                     <div key={id} >
                         <ListItem alignItems="flex-start"className={classes.item} onClick={handleOpenModal} id={id}>
-                            <ListItemAvatar>
+                            <ListItemAvatar >
                                 <Avatar alt="Remy Sharp"/>
                             </ListItemAvatar>
                             <ListItemText

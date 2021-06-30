@@ -41,7 +41,7 @@ class UserController  {
     async openRoom(userId, contactId) {
         const rooms = await this.allUserRooms(userId);
         if(!rooms.length){
-           const roomId = await this.addRoomOnTable(userId, contactId)
+           const roomId = await this.addRoomOnTable(userId)
                await this.createRoomReletions(roomId, userId, contactId)
             return  {user_id: contactId, room_id: roomId[0]}
         }
@@ -55,7 +55,7 @@ class UserController  {
         if(room.length) {
             return await room[0]
         } else {
-            const room = await this.addRoomOnTable(userId, contactId)
+            const room = await this.addRoomOnTable(userId)
                    await this.createRoomReletions(room, userId, contactId)
 
             return {user_id: contactId, room_id: room[0]}
@@ -65,7 +65,23 @@ class UserController  {
 
      async createRoomReletions(roomId, userId, contactId) {
          await knex('room_relation').insert({room_id: roomId[0], user_id: userId})
-         await knex('room_relation').insert({room_id: roomId[0], user_id: contactId})
+         if(Array.isArray(contactId)) {
+             const newArr = contactId.map(item => {
+                return  {
+                    room_id: roomId[0],
+                    user_id: item.id
+                 }
+             })
+                 await knex('room_relation').insert(newArr)
+         } else  {
+             await knex('room_relation').insert({room_id: roomId[0], user_id: contactId})
+
+         }
+    }
+
+    async createGroupRoom(userAdmin, arrayUsers) {
+        const room = await this.addRoomOnTable(userAdmin, 'group')
+            await this.createRoomReletions(room,userAdmin,arrayUsers)
     }
 
      async searchRoom(contactId, rooms) {
@@ -76,10 +92,9 @@ class UserController  {
      }
 
 
-    async addRoomOnTable(userId) {
-    return ( await knex('rooms').insert({user_id: userId, room_name: 'test'})
+    async addRoomOnTable(userId, type = 'privat') {
+    return ( await knex('rooms').insert({user_id: userId, room_name: 'test', type: type})
            .returning('id'))
-
     }
 
     async allUserRooms(id) {
@@ -87,22 +102,36 @@ class UserController  {
             .where('user_id', id))
     }
 
-    async allUserRoomsJoin(id) {
-        const rooms = await this.allUserRooms(id);
-        const arrRooms = []
-            rooms.forEach(item => {
-                arrRooms.push(item.room_id)
-            })
-        const users = await knex('room_relation').select(['users.id', 'users.email', 'users.nick_name', 'room_relation.room_id', 'rooms.last_mess'])
-            .leftJoin('users', 'room_relation.user_id', 'users.id')
-            .leftJoin('rooms', 'room_relation.room_id', 'rooms.id')
-            .whereIn('room_id', arrRooms )
-        return users.filter(item => item.id !== id)
+    async allUserRoomsJoin(userId) {
+        const rooms = await knex('rooms')
+            .select('rooms.id', 'rooms.last_mess', 'rooms.type', 'rooms.room_name')
+            .leftJoin('room_relation', 'room_relation.room_id', 'rooms.id')
+            .where('room_relation.user_id', userId );
+
+        if (!rooms.length) {
+            return rooms;
+        }
+
+        const users = await knex('users')
+            .select(['users.id', 'users.email', 'users.nick_name', 'room_relation.room_id'])
+            .leftJoin('room_relation', 'room_relation.user_id', 'users.id')
+            .whereIn('room_relation.room_id', rooms.map(({id}) => id) )
+            .whereNot('users.id', userId)
+
+        return rooms.map((room) => {
+            const {id} = room;
+            const roomUsers = users.filter(({room_id}) => room_id == id);
+
+            return {...room, users: roomUsers};
+        })
 
 
     }
     async allMessRoom(roomId) {
-        return (await  knex('messages').select('*').where('room_id', roomId))
+        return (await  knex('messages')
+            .select(['messages.*', 'users.nick_name'] )
+            .leftJoin('users', 'messages.user_id', 'users.id')
+            .where('messages.room_id', roomId))
     }
 
     async sendMess({roomId, userId, text, created}) {

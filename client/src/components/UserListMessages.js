@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useState} from 'react';
 import {
     Avatar,
     Button,
@@ -11,6 +11,7 @@ import {
     Typography
 } from '@material-ui/core'
 import {makeStyles} from "@material-ui/core/styles";
+import ModalAddGroup from "./ModalAddGroup";
 
 const useStyles = makeStyles({
     item: {
@@ -36,8 +37,14 @@ const useStyles = makeStyles({
 
 
 
-const UserListMessages = ({rooms, openRoom, lastMess}) => {
+const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
     const classes = useStyles()
+    const [open, setOpen] = useState(false)
+
+
+    const handleClose = () => {
+        setOpen(false)
+    }
 
     if (!rooms.length) {
         return (
@@ -45,21 +52,26 @@ const UserListMessages = ({rooms, openRoom, lastMess}) => {
         )
     }
 
+    const addGroupRoom = (users) => {
+        createGroupRoom(users)
+        setOpen(false)
+    }
+
     return (
         <>
-            <Tooltip title='Добавить группу'>
-                <Button className={classes.addGroup}><span className="material-icons">add</span></Button>
+            <Tooltip title='Создать беседу'>
+                <Button onClick={() => setOpen(true)} className={classes.addGroup}><span className="material-icons">add</span></Button>
             </Tooltip>
             <List>
-                {rooms.map(({nick_name, email, id, room_id, last_mess}) => {
+                {rooms.map(({room_name, id: room_id, last_mess}) => {
                     return (
-                           <div className={classes.item} key={id} onClick={() => openRoom(id, room_id)} >
+                           <div className={classes.item} key={room_id} onClick={() => openRoom(room_id)} >
                                <ListItem alignItems="flex-start">
                                    <ListItemAvatar>
                                        <Avatar alt="Remy Sharp" />
                                    </ListItemAvatar>
                                    <ListItemText
-                                       primary={nick_name}
+                                       primary={room_name}
                                        secondary={
                                            <React.Fragment>
                                                <Typography
@@ -67,7 +79,7 @@ const UserListMessages = ({rooms, openRoom, lastMess}) => {
                                                    variant="body2"
                                                    color="textPrimary"
                                                >
-                                                   {lastMess ? lastMess : last_mess}
+                                                 {last_mess.length > 22 ? last_mess.slice(0,22) + '...' : last_mess}
                                                </Typography>
 
                                            </React.Fragment>
@@ -79,6 +91,13 @@ const UserListMessages = ({rooms, openRoom, lastMess}) => {
                     )
                 })}
             </List>
+
+            {open ? <ModalAddGroup
+                open={open}
+                handleClose={handleClose}
+                allContacts={allContacts}
+                addGroupRoom={addGroupRoom}
+            /> : null}
 
         </>
 

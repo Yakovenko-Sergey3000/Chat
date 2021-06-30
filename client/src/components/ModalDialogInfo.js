@@ -56,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
 export default function ModalDialogInfo({open, handleClose, user}) {
     const classes = useStyles();
 
-    const {email, id, nick_name, sity} = user;
+    const {email, nick_name, sity} = user;
 
     return (
         <Modal

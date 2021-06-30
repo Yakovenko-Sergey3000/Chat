@@ -12,7 +12,7 @@ const useRoutes = (isAuth) => {
                 <Switch>
                     <Route path="/chat">
                         <ChatPage/>
-                        <Redirect to="/mess"/>
+                        {/*<Redirect to="/mess"/>*/}
                     </Route>
                     <Route path="/search">
                         <ChatPage/>
