@@ -147,7 +147,6 @@ const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [],
 
 
 
-
     const openMenu= () => {
        setMenu(prev => !prev)
     }

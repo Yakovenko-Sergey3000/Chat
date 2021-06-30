@@ -144,6 +144,7 @@ const ChatPage = () => {
             JSON.stringify({userId: user.id}),
             {'Content-Type': 'application/json'}
             )
+
         const roomName = rooms.map(item => {
             if (item.type === 'privat') {
                 return {...item, room_name: item.users[0].nick_name}
@@ -196,7 +197,7 @@ const ChatPage = () => {
 
 
     const openRoomModal = async (id) => {
-        const res =  await request(
+        const room =  await request(
             '/api/openRoom',
             'POST',
             JSON.stringify({
@@ -205,16 +206,14 @@ const ChatPage = () => {
             }),
             {'Content-Type': 'application/json'}
         )
-
-        const contact = allContacts.filter(item => item.id === res.user_id)
-        console.log(contact)
-        // setIsContact(true)
-        // contact[0].room_id = res.room_id
-        // setDialog(contact)
-        // getMessRoom(res.room_id)
-        // console.log(res)
-
+        const roomName = room.map(item => {
+            return {...item, room_name: item.users[0].nick_name}
+        })
+        setIsContact(true)
+        setDialog(roomName)
+        getMessRoom(room[0].id)
     }
+
 
     const createGroupRoom = async (users) => {
         if(users.length > 1) {

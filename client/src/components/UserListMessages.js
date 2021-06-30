@@ -63,7 +63,7 @@ const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
                 <Button onClick={() => setOpen(true)} className={classes.addGroup}><span className="material-icons">add</span></Button>
             </Tooltip>
             <List>
-                {rooms.map(({room_name, id: room_id, last_mess}) => {
+                {rooms.map(({room_name, id: room_id, last_mess = []}) => {
                     return (
                            <div className={classes.item} key={room_id} onClick={() => openRoom(room_id)} >
                                <ListItem alignItems="flex-start">
@@ -79,7 +79,7 @@ const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
                                                    variant="body2"
                                                    color="textPrimary"
                                                >
-                                                 {last_mess.length > 22 ? last_mess.slice(0,22) + '...' : last_mess}
+                                                 {/*{last_mess.length > 22 ? last_mess.slice(0,22) + '...' : last_mess}*/}
                                                </Typography>
 
                                            </React.Fragment>

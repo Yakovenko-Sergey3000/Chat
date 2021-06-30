@@ -38,43 +38,48 @@ class UserController  {
 
     }
 
+
     async openRoom(userId, contactId) {
-        const rooms = await this.allUserRooms(userId);
-        if(!rooms.length){
-           const roomId = await this.addRoomOnTable(userId)
-               await this.createRoomReletions(roomId, userId, contactId)
-            return  {user_id: contactId, room_id: roomId[0]}
+
+        const rooms = await this.allUserRoomsJoin(userId)
+        if (!rooms.length) {
+            const privatRoom = await this.addRoomOnTable(userId)
+            await this.createRoomReletions(privatRoom, userId, contactId)
+            return ( await this.joinPrivatRoomAndUsers(privatRoom[0], userId) )
         }
 
-        const arrRooms = []
-            rooms.forEach(item => {
-                arrRooms.push(item.room_id)
-            })
+        const privatRoom = await this.searchPrivatRooms(contactId,rooms)
 
-      const room = await this.searchRoom(contactId, arrRooms)
-        if(room.length) {
-            return await room[0]
-        } else {
-            const room = await this.addRoomOnTable(userId)
-                   await this.createRoomReletions(room, userId, contactId)
-
-            return {user_id: contactId, room_id: room[0]}
+        if (privatRoom.length) {
+            return ( await this.joinPrivatRoomAndUsers(privatRoom[0], userId) )
+        } else  {
+            const privatRoom = await this.addRoomOnTable(userId)
+                       await this.createRoomReletions(privatRoom, userId, contactId)
+            return ( await this.joinPrivatRoomAndUsers(privatRoom[0], userId) )
         }
-
      }
 
+    async joinPrivatRoomAndUsers(room, userId) {
+            const user = await knex('users')
+                .select(['users.id', 'users.email', 'users.nick_name', 'room_relation.room_id'])
+                .leftJoin('room_relation', 'room_relation.user_id', 'users.id')
+                .where('room_relation.room_id', room.id)
+                .whereNot('users.id', userId)
+            return [{...room, users: user}]
+    }
+
      async createRoomReletions(roomId, userId, contactId) {
-         await knex('room_relation').insert({room_id: roomId[0], user_id: userId})
+         await knex('room_relation').insert({room_id: roomId[0].id, user_id: userId})
          if(Array.isArray(contactId)) {
              const newArr = contactId.map(item => {
                 return  {
-                    room_id: roomId[0],
+                    room_id: roomId[0].id,
                     user_id: item.id
                  }
              })
                  await knex('room_relation').insert(newArr)
          } else  {
-             await knex('room_relation').insert({room_id: roomId[0], user_id: contactId})
+             await knex('room_relation').insert({room_id: roomId[0].id, user_id: contactId})
 
          }
     }
@@ -86,7 +91,7 @@ class UserController  {
 
      async searchRoom(contactId, rooms) {
         return (await knex('room_relation').select('*')
-             .whereIn('room_id', rooms)
+             .whereIn('room_id', rooms.map( ({id}) => id) )
              .and
              .where('user_id', contactId))
      }
@@ -94,12 +99,16 @@ class UserController  {
 
     async addRoomOnTable(userId, type = 'privat') {
     return ( await knex('rooms').insert({user_id: userId, room_name: 'test', type: type})
-           .returning('id'))
+           .returning('*'))
     }
 
-    async allUserRooms(id) {
-        return (await  knex('room_relation').select('room_id')
-            .where('user_id', id))
+    async searchPrivatRooms(contactId, rooms) {
+        return (await knex('rooms')
+            .select('rooms.id', 'rooms.last_mess', 'rooms.type', 'rooms.room_name')
+            .leftJoin('room_relation', 'room_relation.room_id', 'rooms.id')
+            .whereIn('room_relation.room_id', rooms.map( ({id}) => id ))
+            .where('rooms.type', 'privat')
+            .where('room_relation.user_id', contactId ))
     }
 
     async allUserRoomsJoin(userId) {
