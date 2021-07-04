@@ -55,7 +55,7 @@ const SearchAllUsers = ({allUsers, addContact, authUser}) => {
     return (
         <>
         <List>
-            {allUsers.map(({email, id, nick_name}) => {
+            {allUsers.map(({email, id, nick_name, url_avatar}) => {
                 if(id === authUser) {
                     return null
                 }
@@ -63,7 +63,7 @@ const SearchAllUsers = ({allUsers, addContact, authUser}) => {
                     <div key={id} >
                         <ListItem alignItems="flex-start"className={classes.item} onClick={handleOpenModal} id={id}>
                             <ListItemAvatar >
-                                <Avatar alt="Remy Sharp"/>
+                                <Avatar alt="Remy Sharp" src={url_avatar}/>
                             </ListItemAvatar>
                             <ListItemText
                                 primary={nick_name}

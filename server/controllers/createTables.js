@@ -29,6 +29,8 @@ module.exports.createTables = async () => {
                         table
                             .boolean('status')
                             .defaultTo(false)
+                        table
+                            .text('url_avatar')
                     })
                 break;
             case tableContacts :

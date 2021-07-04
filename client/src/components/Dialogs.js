@@ -1,6 +1,6 @@
 import {AppBar, Avatar, Box, Button, Icon, IconButton, Paper, TextField, Toolbar, Typography} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import ModalDialogInfo from "./ModalDialogInfo";
 import date from 'date-and-time'
 
@@ -136,15 +136,13 @@ const useStyle = makeStyles({
 })
 
 
-const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [], sendMess}) => {
+const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [], sendMess, user}) => {
     const classes = useStyle();
     const [menu, setMenu] = useState(false);
     const [open, setOpen] = useState(false);
     const [text, setText] = useState('')
-
+    const {url_avatar, id: userId} = user
     const {id: room_id, room_name, users, type} = room[0];
-
-
 
 
     const openMenu= () => {
@@ -183,17 +181,25 @@ const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [],
 
     const messagesArray = () => {
         let flex = ''
+
+
         return (
             <Box className={classes.dialog}>
                 {allHistoryMess.map(({id,mess, time, user_id, nick_name}) => {
 
                     users.find(item => item.id === user_id) ? flex = '' : flex = 'flex-end';
+                    let url = ''
+                    users.forEach(user=> {
+                        if(user.id === user_id) {
+                            url = user.url_avatar
+                        }
+                    })
 
                     const dateCreatedMess = new Date(Date.parse(time))
                     const formatTime = date.format(dateCreatedMess, 'DD-MM-YY hh:mm')
                    return (
                        <Box component={'li'} key={id} className={classes.mess} style={{justifyContent: flex}}>
-                           <Avatar src=''/>
+                           <Avatar src={url || url_avatar}/>
                            <Paper className={classes.messBody}>
                                <Box>
                                    <Typography className={classes.nick_name}>
@@ -213,6 +219,8 @@ const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [],
 
         )
     }
+
+
 
     const renderMess = messagesArray()
     return (
@@ -237,7 +245,10 @@ const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [],
                 onPointerLeave={closeMenu}
 
             >
-                <Button className={classes.btnMunu} onClick={handleOpenModal}>Открыть профиль</Button>
+                {type === 'group' ?
+                    <Button className={classes.btnMunu} onClick={handleOpenModal}>Показать пользователей</Button>:
+                    <Button className={classes.btnMunu} onClick={handleOpenModal}>Открыть профиль</Button>
+                }
                 {isContact?
                      null : <Button onClick={() => addContact(users[0].id)} className={classes.btnMunu}>Добавить контакт</Button>
                 }
@@ -279,7 +290,7 @@ const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [],
             <ModalDialogInfo
                 open={open}
                 handleClose={handleCloseModal}
-                user={room[0]}
+                users={users}
             />
         </>
             )

@@ -60,12 +60,12 @@ const UserContacts = ({contacts, openRoom, removeContact}) => {
 
 
     const RenderList = () => {
-          return  contacts.map(({email, id, nick_name}) => {
+          return  contacts.map(({email, id, nick_name, url_avatar}) => {
                     return (
                         <div key={id}>
                             <ListItem onClick={handleOpenModal} alignItems="flex-start"  className={classes.item} id={id}>
                                 <ListItemAvatar>
-                                    <Avatar alt="Remy Sharp" />
+                                    <Avatar alt="Remy Sharp" src={url_avatar}/>
                                 </ListItemAvatar>
                                 <ListItemText
                                     primary={nick_name}

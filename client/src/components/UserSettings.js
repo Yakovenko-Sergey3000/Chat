@@ -1,6 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Avatar, Grid, Button, Input, InputLabel, Icon, Box} from '@material-ui/core'
 import {makeStyles} from "@material-ui/core/styles";
+import {useCookies} from "react-cookie";
 
 
 const useStyles = makeStyles({
@@ -32,23 +33,22 @@ const useStyles = makeStyles({
 
 })
 
-const UserSettings = ({logout, user, updateUser}) => {
+const UserSettings = ({logout, user}) => {
     const classes = useStyles()
-    const {nick_name, sity, id} = user;
+    const {nick_name, sity = '', id, url_avatar} = user;
     const [nickInput, setNickInput] = useState(nick_name)
     const [sityInput, setSityInput] = useState(sity)
     const [avatar, setAvatar] = useState('')
     const [disableBtn, setDisableBtn] = useState(true)
-
-    const inputFile = (e) => {
-        setAvatar(e.target.value)
-    }
+    const [cookie] = useCookies(['idSess'])
 
 
-    // useEffect(() => {
-    //     setSityInput(sity)
-    //     setNickInput(nick_name)
-    // }, [])
+
+    useEffect(() => {
+        setSityInput(sity)
+        setNickInput(nick_name)
+
+    }, [])
     useEffect(() => {
 
         if(sityInput === sity && nickInput === nick_name && avatar === '') {
@@ -59,30 +59,34 @@ const UserSettings = ({logout, user, updateUser}) => {
 
     }, [nickInput, sityInput, avatar])
 
-
-    const onUpdate = () => {
-        updateUser({
-            nick_name:nickInput,
-            sity: sityInput,
-            userId: id
-        })
-    }
-
+        const idSess = cookie.idSess
     return (
 
             <Grid container direction={'column'} alignItems={'center'} component={'div'}>
+                <Avatar className={classes.avatar} src={url_avatar} />
 
-
-                <Avatar className={classes.avatar} src={avatar}/>
-
-                       <form>
+                       <form action='/api/settings' method='POST' encType='multipart/form-data'>
                            <InputLabel className={classes.fakeInputAddAvatar} htmlFor={'addAvatar'}><Icon><span className="material-icons-outlined.md-36">add_a_photo</span></Icon><span>Добавить фото</span></InputLabel>
 
-                           <Input onChange={inputFile} className={classes.inputAddAvatar} id={'addAvatar'} type={'file'}laceholder={'Добавить аватарку'}/>
+                           <Input
+                               name='avatar'
+                               className={classes.inputAddAvatar}
+                               id={'addAvatar'}
+                               type={'file'}
+                               placeholder={'Добавить аватарку'}
+                               accept='image/*'
+                               onChange={(e) => setAvatar('url')}
+
+                           />
+                           <Input type='hidden' name='idSess' value={idSess}/>
+                           <Input type='hidden' name='id' value={id}/>
+
+
 
                            <Box mt={4} component={'div'}>
                                <InputLabel>Изменить ник:</InputLabel>
                                <Input type={'text'}
+                                      name='nick_name'
                                       value={nickInput}
                                       onChange={(e) => setNickInput(e.target.value)}/>
                            </Box>
@@ -90,6 +94,7 @@ const UserSettings = ({logout, user, updateUser}) => {
                                <InputLabel>Город:</InputLabel>
                                <Input
                                    type={'text'}
+                                   name='sity'
                                    value={sityInput}
                                    onChange={(e) => setSityInput(e.target.value)}
                                />
@@ -98,8 +103,9 @@ const UserSettings = ({logout, user, updateUser}) => {
                             <Button
                                 variant={'outlined'}
                                 className={classes.btn}
-                                onClick={onUpdate}
+                                type='submit'
                                 disabled={disableBtn}
+
                             >Сохранить настройки</Button>
 
                         </Box>
@@ -107,6 +113,8 @@ const UserSettings = ({logout, user, updateUser}) => {
                            <Box textAlign={'center'} mt={2}>
                                <Button variant={'outlined'} className={classes.btnLogout} onClick={() => logout()}>Выйти</Button>
                            </Box>
+
+
 
                        </form>
             </Grid>

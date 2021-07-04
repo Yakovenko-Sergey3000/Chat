@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
 export default function ModalContacts({open, handleClose, user ,onOpenRoom, onRemoveContact}) {
     const classes = useStyles();
 
-    const {id, nick_name} = user;
+    const {id, nick_name, url_avatar} = user;
 
 
     return (
@@ -67,7 +67,7 @@ export default function ModalContacts({open, handleClose, user ,onOpenRoom, onRe
         >
             <Fade in={open}>
                 <div className={classes.paper}>
-                    <Avatar alt='avatar' className={classes.avatar}/>
+                    <Avatar alt='avatar' className={classes.avatar} src={url_avatar}/>
                     <h2 id="transition-modal-title">{nick_name}</h2>
 
                     <Box className={classes.info} mt={2}>

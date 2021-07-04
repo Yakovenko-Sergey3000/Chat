@@ -48,7 +48,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ModalAddContact({open, handleClose, user, onAddContact}) {
     const classes = useStyles();
-    const {email, id, nick_name, sity=''} = user
+    const {email, id, nick_name, sity='', url_avatar} = user
+
     return (
             <Modal
                 aria-labelledby="transition-modal-title"
@@ -64,7 +65,7 @@ export default function ModalAddContact({open, handleClose, user, onAddContact})
             >
                 <Fade in={open}>
                     <div className={classes.paper}>
-                        <Avatar alt='avatar' className={classes.avatar}/>
+                        <Avatar alt='avatar' className={classes.avatar} src={url_avatar}/>
                         <h2 id="transition-modal-title">{nick_name}</h2>
                         <Box className={classes.info}>
                             <label className={classes.infoStatic}>Email:</label>

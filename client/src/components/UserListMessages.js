@@ -40,7 +40,7 @@ const useStyles = makeStyles({
 const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
     const classes = useStyles()
     const [open, setOpen] = useState(false)
-
+    const serverHost= process.env.REACT_APP_HOST_PORT_SERVER
 
     const handleClose = () => {
         setOpen(false)
@@ -63,12 +63,14 @@ const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
                 <Button onClick={() => setOpen(true)} className={classes.addGroup}><span className="material-icons">add</span></Button>
             </Tooltip>
             <List>
-                {rooms.map(({room_name, id: room_id, last_mess = []}) => {
+                {rooms.map(({room_name, id: room_id, room_avatar, last_mess,type, users}) => {
+                            let lastMess = last_mess === null ? '' : last_mess
+
                     return (
-                           <div className={classes.item} key={room_id} onClick={() => openRoom(room_id)} >
+                           <div className={classes.item} key={room_id} onClick={() => openRoom(room_id, users[0].id)} >
                                <ListItem alignItems="flex-start">
                                    <ListItemAvatar>
-                                       <Avatar alt="Remy Sharp" />
+                                       <Avatar alt="Remy Sharp" src={room_avatar || null} />
                                    </ListItemAvatar>
                                    <ListItemText
                                        primary={room_name}
@@ -79,7 +81,7 @@ const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
                                                    variant="body2"
                                                    color="textPrimary"
                                                >
-                                                 {/*{last_mess.length > 22 ? last_mess.slice(0,22) + '...' : last_mess}*/}
+                                                 {lastMess.length > 22 ? lastMess.slice(0,22) + '...' : lastMess}
                                                </Typography>
 
                                            </React.Fragment>

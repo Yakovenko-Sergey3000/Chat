@@ -2,7 +2,7 @@ const knex = require('../configDB');
 
 class UserController  {
     async findAllUsers() {
-        return (await knex('users').select('id', 'email','nick_name'))
+        return (await knex('users').select('id', 'email','nick_name', 'url_avatar'))
     }
 
     async addContact(userId, contactId) {
@@ -11,7 +11,7 @@ class UserController  {
         const candidate = contact.find(user => user.id === contactId)
 
          if(candidate) {
-             return
+             return []
          }
         await knex('contacts').insert({user_id: userId, contact_id: contactId})
 
@@ -21,7 +21,7 @@ class UserController  {
 
 
     async findContacts(id) {
-   return (await knex('contacts').select('users.email','users.id', 'nick_name').
+   return (await knex('contacts').select('users.email','users.id', 'nick_name', 'users.url_avatar').
        leftJoin('users', 'users.id', 'contacts.contact_id').
            where('contacts.user_id', id))
     }
@@ -61,11 +61,20 @@ class UserController  {
 
     async joinPrivatRoomAndUsers(room, userId) {
             const user = await knex('users')
-                .select(['users.id', 'users.email', 'users.nick_name', 'room_relation.room_id'])
+                .select(['users.id', 'users.email', 'users.nick_name','users.url_avatar', 'room_relation.room_id'])
                 .leftJoin('room_relation', 'room_relation.user_id', 'users.id')
                 .where('room_relation.room_id', room.id)
                 .whereNot('users.id', userId)
             return [{...room, users: user}]
+    }
+
+    async searchPrivatRooms(contactId, rooms) {
+        return (await knex('rooms')
+            .select('rooms.id', 'rooms.last_mess', 'rooms.type', 'rooms.room_name')
+            .leftJoin('room_relation', 'room_relation.room_id', 'rooms.id')
+            .whereIn('room_relation.room_id', rooms.map( ({id}) => id ))
+            .where('rooms.type', 'privat')
+            .where('room_relation.user_id', contactId ))
     }
 
      async createRoomReletions(roomId, userId, contactId) {
@@ -102,14 +111,7 @@ class UserController  {
            .returning('*'))
     }
 
-    async searchPrivatRooms(contactId, rooms) {
-        return (await knex('rooms')
-            .select('rooms.id', 'rooms.last_mess', 'rooms.type', 'rooms.room_name')
-            .leftJoin('room_relation', 'room_relation.room_id', 'rooms.id')
-            .whereIn('room_relation.room_id', rooms.map( ({id}) => id ))
-            .where('rooms.type', 'privat')
-            .where('room_relation.user_id', contactId ))
-    }
+
 
     async allUserRoomsJoin(userId) {
         const rooms = await knex('rooms')
@@ -122,7 +124,7 @@ class UserController  {
         }
 
         const users = await knex('users')
-            .select(['users.id', 'users.email', 'users.nick_name', 'room_relation.room_id'])
+            .select(['users.id', 'users.email', 'users.nick_name', 'users.url_avatar', 'users.sity', 'room_relation.room_id'])
             .leftJoin('room_relation', 'room_relation.user_id', 'users.id')
             .whereIn('room_relation.room_id', rooms.map(({id}) => id) )
             .whereNot('users.id', userId)
@@ -140,7 +142,8 @@ class UserController  {
         return (await  knex('messages')
             .select(['messages.*', 'users.nick_name'] )
             .leftJoin('users', 'messages.user_id', 'users.id')
-            .where('messages.room_id', roomId))
+            .where('messages.room_id', roomId)
+            .orderBy('time'))
     }
 
     async sendMess({roomId, userId, text, created}) {
@@ -152,14 +155,36 @@ class UserController  {
         await knex('rooms').where('id', roomId).update({last_mess: text})
     }
 
-    async updateSettings(nick_name, sity, userId) {
-       return  (await knex('users')
-            .where('id', userId)
+    async updateSettings({idSess, id,nick_name,sity, url_avatar}) {
+        const updateData = {nick_name,sity}
+        if(url_avatar){
+            updateData.url_avatar = url_avatar
+        }
+
+
+        const session = await knex('session').first('sess').where({sid:idSess});
+
+        await knex('session')
+            .where({sid: idSess})
             .update({
-                nick_name,
-                sity
+                sess: {
+                    ...session.sess,
+                    user: {
+                        ...session.sess.user,
+                        ...updateData
+                    }
+                }
+            });
+
+
+
+       return  (await knex('users')
+            .where('id', id)
+            .update({
+             ...updateData
             })
             .returning(['id', 'email', 'nick_name', 'sity', 'status']))
+
 
     }
 

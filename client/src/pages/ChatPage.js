@@ -1,4 +1,4 @@
-import React, {useState, useContext, useEffect,useRef} from 'react';
+import React, {useState, useContext, useEffect, useRef, useCallback} from 'react';
 import {Container, Grid, Icon, AppBar, Tabs, Tab, Box, Typography} from '@material-ui/core'
 import PropTypes from 'prop-types';
 import { makeStyles } from "@material-ui/core/styles";
@@ -11,6 +11,7 @@ import SearchAllUsers from "../components/SearchAllUsers";
 import {Link} from "react-router-dom";
 import {useHttp} from "../hooks/http.hook";
 import Dialogs from "../components/Dialogs";
+
 
 
 
@@ -81,6 +82,7 @@ const  a11yProps = (index) => {
 }
 
 const ChatPage = () => {
+
     const [allContacts, setAllContacts] = useState([]);
     const [allUsers, setAllUsers]  = useState(null)
 
@@ -95,6 +97,10 @@ const ChatPage = () => {
     const [dialog, setDialog] = useState([])
     const [roomMess, setRoomMess] = useState([])
     const firstRender = useRef(false)
+    const [trigerMess, setTrigerMess] = useState(true)
+
+
+
 
 
     const auth = useContext(AuthContext)
@@ -105,9 +111,12 @@ const ChatPage = () => {
         setTabValue(newValue);
     };
 
+
+
     useEffect(() => {
         let user = auth.user
         if(user) {
+
             setUser(user)
             socket.emit('user:login', user.id)
         }
@@ -138,32 +147,44 @@ const ChatPage = () => {
     }
 
     const userRooms = async () => {
+
         const rooms = await request(
             '/api/allUserRooms',
             'POST',
             JSON.stringify({userId: user.id}),
             {'Content-Type': 'application/json'}
-            )
+        )
+
+
 
         const roomName = rooms.map(item => {
             if (item.type === 'privat') {
-                return {...item, room_name: item.users[0].nick_name}
+                return {
+                    ...item,
+                    room_name: item.users[0].nick_name,
+                    room_avatar: item.users[0].url_avatar
+                }
             } else {
                 return item
             }
         })
+
         setRooms(roomName)
         await userContacts()
-
     }
+
     const addContact = async (contactId) => {
        const userContacts =  await request('/api/addContact',
             'POST',
             JSON.stringify({userId: user.id, contactId}),
             {'Content-Type': 'application/json'
             })
-        setIsContact(true)
-        setAllContacts(userContacts)
+
+        if(userContacts.length) {
+            setIsContact(true)
+            setAllContacts(userContacts)
+        }
+
     }
 
 
@@ -184,34 +205,33 @@ const ChatPage = () => {
     }
 
 
-    const updateUser = async (data) => {
-       const res = await request(
-            '/api/settings',
-            'PUT',
-            JSON.stringify(data),
-            {'Content-Type': 'application/json'}
-        )
-
-    }
 
 
 
-    const openRoomModal = async (id) => {
+
+    const openRoomModal = async (contactId) => {
         const room =  await request(
             '/api/openRoom',
             'POST',
             JSON.stringify({
                 userId: user.id,
-                contactId: id
+                contactId: contactId
             }),
             {'Content-Type': 'application/json'}
         )
+
         const roomName = room.map(item => {
-            return {...item, room_name: item.users[0].nick_name}
+            return {
+                ...item, room_name: item.users[0].nick_name,
+                        room_avatar: item.users[0].url_avatar
+            }
         })
         setIsContact(true)
         setDialog(roomName)
         getMessRoom(room[0].id)
+        joinRoom(room[0].id)
+        leaveRoom()
+
     }
 
 
@@ -227,22 +247,35 @@ const ChatPage = () => {
                {'Content-Type': 'application/json'}
            )
         } else {
-            console.log('not group')
+            openRoomModal(users[0].id)
         }
     }
 
-    const openRoomMess = (room_id) => {
+    const openRoomMess = (room_id, contactId) => {
         const room = rooms.filter(item => item.id === room_id)
-        const res = !!allContacts.find(item => item.id === room_id);
-        setIsContact(res)
+        if(room[0].type === 'group') {
+            setIsContact(true)
+        } else {
+            const res = !!allContacts.find(item => item.id === contactId);
+            setIsContact(res)
+        }
         setDialog(room)
         getMessRoom(room_id)
+        joinRoom(room_id)
+        leaveRoom()
     }
 
 
     const closeDialog = () => {
         setDialog([])
     }
+
+    const joinRoom = (roomId) => {
+        socket.emit('room:Join', roomId)
+    }
+
+
+
 
     const getMessRoom = (roomId) => {
         socket.emit('room:getMessRoom', roomId)
@@ -257,18 +290,40 @@ const ChatPage = () => {
        })
 
     }
-    socket.on('massageInRoom', (res) => {
-        setRoomMess(res)
+
+
+   const leaveRoom =  useCallback(() => {
+       if(dialog.length) {
+           socket.emit('room:Leave', dialog[0].id)
+       }
+    }, [dialog])
+
+
+
+
+    socket.on('historyMess', data => {
+        setRoomMess(data)
     })
 
-    useEffect(() => {
-        if(firstRender.current) {
-            userRooms()
-        } else {
-            firstRender.current = true
-        }
 
-    }, [roomMess])
+    useEffect(() => {
+            socket.on('massageInRoom', (data) => {
+                console.log(data)
+            })
+    })
+
+
+
+    // useEffect(() => {
+    //
+    //     if(firstRender.current) {
+    //         console.log('triger')
+    //         // userRooms()
+    //     } else {
+    //         firstRender.current = true
+    //     }
+    //
+    // }, [])
 
 
 
@@ -312,7 +367,7 @@ const ChatPage = () => {
                             <UserSettings
                                 logout={logout}
                                 user={user}
-                                updateUser={updateUser}
+
                             />
                         </TabPanel>
 
@@ -327,6 +382,7 @@ const ChatPage = () => {
                             addContact={addContact}
                             sendMess={sendMess}
                             allHistoryMess={roomMess}
+                            user={user}
                         /> : null}
                     </Grid>
 

@@ -79,10 +79,9 @@ class User {
     }
 
 
-    async updateSettings({nick_name, sity, userId}) {
+    async updateSettings(data) {
         try {
-          return await this.adapter.updateSettings(nick_name, sity, userId)
-
+          return await this.adapter.updateSettings(data)
         } catch (e) {
             console.log(e)
         }

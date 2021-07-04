@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
-import {Avatar, Box, Button} from "@material-ui/core";
+import {Avatar, Box, Button, List, ListItem, Typography} from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -13,7 +13,6 @@ const useStyles = makeStyles((theme) => ({
     },
     paper: {
         width: '300px',
-        height: '350px',
         backgroundColor: theme.palette.background.paper,
         boxShadow: theme.shadows[5],
         padding: theme.spacing(2, 4, 3),
@@ -23,6 +22,9 @@ const useStyles = makeStyles((theme) => ({
         width: '100px',
         height: '100px',
         margin: '10px auto'
+    },
+    nickName: {
+        marginBottom: '10px'
     },
     info: {
         display: 'flex',
@@ -49,14 +51,54 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '13px',
         color: 'rgba(243,68,68,0.84)',
         borderColor: 'rgba(243,68,68,0.84)'
+    },
+    group: {
+        marginLeft: '10px'
+    },
+    privat: {
+        display: 'flex',
+        flexDirection: 'column'
     }
 
 }));
 
-export default function ModalDialogInfo({open, handleClose, user}) {
+export default function ModalDialogInfo({open, handleClose, users}) {
     const classes = useStyles();
 
-    const {email, nick_name, sity} = user;
+    const barInfo = () => {
+        if(users.length > 1) {
+          return users.map(({nick_name, id, url_avatar}) => {
+              return (
+                  <ListItem key={id}>
+                      <Box display='flex' alignItems='center'>
+                          <Avatar src={url_avatar}/>
+                          <Typography className={classes.group}>{nick_name}</Typography>
+                      </Box>
+                  </ListItem>
+              )
+          })
+        } else {
+            const {nick_name, email, sity,id, url_avatar} = users[0]
+            return (
+                <ListItem key={id} className={classes.privat}>
+                    <Avatar alt='avatar' className={classes.avatar} src={url_avatar}/>
+                    <h2 id="transition-modal-title" className={classes.nickName}>{nick_name}</h2>
+                    <Box className={classes.info}>
+                        <label className={classes.infoStatic}>Email:</label>
+                        <span className={classes.infoUser}>{email}</span>
+                    </Box>
+                    <Box className={classes.info}>
+                        <label className={classes.infoStatic}>Город:</label>
+                        <span className={classes.infoUser}>{sity}</span>
+                    </Box>
+                </ListItem>
+            )
+        }
+    }
+
+
+        const BarInfo= barInfo()
+
 
     return (
         <Modal
@@ -73,17 +115,10 @@ export default function ModalDialogInfo({open, handleClose, user}) {
         >
             <Fade in={open}>
                 <div className={classes.paper}>
-                    <Avatar alt='avatar' className={classes.avatar}/>
-                    <h2 id="transition-modal-title">{nick_name}</h2>
-                    <Box className={classes.info}>
-                        <label className={classes.infoStatic}>Email:</label>
-                        <span className={classes.infoUser}>{email}</span>
-                    </Box>
-                    <Box className={classes.info}>
-                        <label className={classes.infoStatic}>Город:</label>
-                        <span className={classes.infoUser}>{sity}</span>
-                    </Box>
 
+                    <List>
+                        {BarInfo || null}
+                    </List>
                     <Box className={classes.info} mt={2}>
                         <Button
                             variant={'outlined'}

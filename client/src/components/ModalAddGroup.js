@@ -92,7 +92,9 @@ export default function ModalAddGroup({open, handleClose, allContacts, addGroupR
             <List dense component="div" role="list">
                 {items.map((value) => {
                     const labelId = `transfer-list-item-${value}-label`;
+
                     return (
+
                         <ListItem key={value.id} role="listitem" button onClick={handleToggle(value)}>
                             <ListItemIcon>
                                 <Checkbox

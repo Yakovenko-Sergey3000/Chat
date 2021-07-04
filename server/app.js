@@ -11,7 +11,7 @@ const configDB = require('./configDB');
 const apiAuth = require('./rourters/apiAuth');
 const apiChat = require('./rourters/apiChat');
 const apiUpdateUser = require('./rourters/apiUpdateUser');
-
+const path = require('path')
 
 const cors = require('cors')
 const addTable = require('./controllers/createTables');
@@ -28,16 +28,13 @@ app.use(
         store: new KnexSessionStore({
             knex: configDB,
             tablename: 'session'
-
         }),
         secret: 'SeCReT',
         cookie: {
             secure: true,
             expires: 1000 * 60 * 60,
-
         },
-        saveUninitialized: true,
-        resave: false,
+        saveUninitialized: false,
     })
 )
 io.on('connection', (socket) => {
@@ -60,6 +57,7 @@ app.use(cors())
 app.use('/api/auth', apiAuth);
 app.use('/api', apiChat);
 app.use('/api', apiUpdateUser)
+app.use(express.static(path.join(__dirname , 'public')));
 
 app.get('/createTable', (req,res) => {
     addTable.createTables()

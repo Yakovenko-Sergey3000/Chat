@@ -34,6 +34,7 @@ router.post('/login', async (req,res) => {
 
         try{
            const dataUser = await authUser.loginUser(req.body)
+
             if(dataUser) {
                 req.session.user = dataUser;
                 res.cookie('idSess', req.sessionID)
