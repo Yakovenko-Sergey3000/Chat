@@ -40,14 +40,14 @@ const useStyles = makeStyles((theme) => ({
     },
     btn: {
         margin: '0 auto',
-        width: '200px',
+        width: '220px',
         fontSize: '13px',
         color: '#52a4db',
         borderColor: '#52a4db'
     },
     btnDel: {
         margin: '0 auto',
-        width: '200px',
+        width: '220px',
         fontSize: '13px',
         color: 'rgba(243,68,68,0.84)',
         borderColor: 'rgba(243,68,68,0.84)'
@@ -62,11 +62,14 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-export default function ModalDialogInfo({open, handleClose, users}) {
+export default function ModalDialogInfo({open, handleClose, room, userId}) {
     const classes = useStyles();
 
+    const {users, type, user_id: admin, room_name} = room[0];
+
+
     const barInfo = () => {
-        if(users.length > 1) {
+        if(type === 'group') {
           return users.map(({nick_name, id, url_avatar}) => {
               return (
                   <ListItem key={id}>
@@ -96,8 +99,74 @@ export default function ModalDialogInfo({open, handleClose, users}) {
         }
     }
 
+    const buttonBlock = () => {
+        if(type === 'group') {
+            if(admin === userId) {
+                return (
+                    <>
+                        <Box className={classes.info} mt={2}>
+                            <Button
+                                variant={'outlined'}
+                                className={classes.btn}
+
+                            >Добавить пользователя</Button>
+                        </Box>
+                        <Box className={classes.info} mt={2}>
+                            <Button
+                                variant={'outlined'}
+                                className={classes.btn}
+
+                            >Очисить сообщения</Button>
+                        </Box>
+                        <Box className={classes.info} mt={2}>
+                            <Button
+                                variant={'outlined'}
+                                className={classes.btnDel}
+
+                            >Удалить диалог</Button>
+                        </Box>
+                    </>
+                )
+            } else{
+                return (
+                    <>
+                        <Box className={classes.info} mt={2}>
+                            <Button
+                                variant={'outlined'}
+                                className={classes.btn}
+
+                            >Добавить пользователя</Button>
+                        </Box>
+                    </>
+                )
+
+            }
+
+        } else {
+            return (
+                <>
+                    <Box className={classes.info} mt={2}>
+                        <Button
+                            variant={'outlined'}
+                            className={classes.btn}
+
+                        >Очисить сообщения</Button>
+                    </Box>
+                    <Box className={classes.info} mt={2}>
+                        <Button
+                            variant={'outlined'}
+                            className={classes.btnDel}
+
+                        >Удалить диалог</Button>
+                    </Box>
+                </>
+            )
+        }
+    }
+
 
         const BarInfo= barInfo()
+        const ButtonBlock = buttonBlock()
 
 
     return (
@@ -117,22 +186,12 @@ export default function ModalDialogInfo({open, handleClose, users}) {
                 <div className={classes.paper}>
 
                     <List>
+                        {type === 'group' ? <h2 id="transition-modal-title" className={classes.nickName}>{room_name}</h2>:
+                            null
+                        }
                         {BarInfo || null}
                     </List>
-                    <Box className={classes.info} mt={2}>
-                        <Button
-                            variant={'outlined'}
-                            className={classes.btn}
-
-                        >Очисить сообщения</Button>
-                    </Box>
-                    <Box className={classes.info} mt={2}>
-                        <Button
-                            variant={'outlined'}
-                            className={classes.btnDel}
-
-                        >Удалить диалог</Button>
-                    </Box>
+                    {ButtonBlock}
                 </div>
             </Fade>
         </Modal>

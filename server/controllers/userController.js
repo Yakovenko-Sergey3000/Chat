@@ -93,8 +93,8 @@ class UserController  {
          }
     }
 
-    async createGroupRoom(userAdmin, arrayUsers) {
-        const room = await this.addRoomOnTable(userAdmin, 'group')
+    async createGroupRoom(userAdmin, arrayUsers, room_name) {
+        const room = await this.addRoomOnTable(userAdmin, 'group', room_name)
             await this.createRoomReletions(room,userAdmin,arrayUsers)
     }
 
@@ -106,8 +106,10 @@ class UserController  {
      }
 
 
-    async addRoomOnTable(userId, type = 'privat') {
-    return ( await knex('rooms').insert({user_id: userId, room_name: 'test', type: type})
+    async addRoomOnTable(userId, type = 'privat', room_name) {
+        const roomName = room_name.join(',') || ''
+
+    return ( await knex('rooms').insert({user_id: userId, room_name: roomName, type: type})
            .returning('*'))
     }
 
@@ -115,7 +117,7 @@ class UserController  {
 
     async allUserRoomsJoin(userId) {
         const rooms = await knex('rooms')
-            .select('rooms.id', 'rooms.last_mess', 'rooms.type', 'rooms.room_name')
+            .select('rooms.id', 'rooms.last_mess', 'rooms.type', 'rooms.room_name', 'rooms.user_id')
             .leftJoin('room_relation', 'room_relation.room_id', 'rooms.id')
             .where('room_relation.user_id', userId );
 

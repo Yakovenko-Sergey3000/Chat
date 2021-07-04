@@ -1,9 +1,21 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
-import {Button, Checkbox, Grid, List, ListItem, ListItemIcon, ListItemText, Paper} from "@material-ui/core";
+import {
+    Box,
+    Button,
+    Checkbox,
+    Grid,
+    Input,
+    InputLabel,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    Paper
+} from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -24,7 +36,17 @@ const useStyles = makeStyles((theme) => ({
         width: 300,
         height: 230,
         overflow: 'auto',
-        borderBottom: '1px solid #999'
+        borderBottom: '1px solid #999',
+        '&::-webkit-scrollbar': {
+            width: '2px',
+        },
+        '&::-webkit-scrollbar-track': {
+            '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)'
+        },
+        '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(0,0,0,0.76)',
+            outline: '1px solid slategrey'
+        }
     },
     button: {
         margin: theme.spacing(0.5, 0),
@@ -33,7 +55,17 @@ const useStyles = makeStyles((theme) => ({
         marginTop: '10px',
         color: '#52a4db',
         borderColor: '#52a4db'
+    },
+    lineGroup: {
+        width: '98%',
+        paddingLeft: '15px'
+    },
+    lineContact: {
+        width: '98%',
+        paddingBottom: '30px',
+        borderBottom: '1px solid #999'
     }
+
 
 
 
@@ -56,6 +88,8 @@ export default function ModalAddGroup({open, handleClose, allContacts, addGroupR
 
     const leftChecked = intersection(checked, left);
     const rightChecked = intersection(checked, right);
+    const [nameGroup, setNameGroup] = useState([])
+    const [inputTrigger, setInputTrigger] = useState(true)
 
     const handleToggle = (value) => () => {
         const currentIndex = checked.indexOf(value);
@@ -83,6 +117,21 @@ export default function ModalAddGroup({open, handleClose, allContacts, addGroupR
         setChecked(not(checked, rightChecked));
     };
 
+    const addNameGroup = (e) => {
+        setInputTrigger(false)
+        setNameGroup([e.target.value])
+        if(e.target.value === '') {
+            setInputTrigger(true)
+            setNameGroup([])
+        }
+    }
+
+    useEffect(() => {
+        if(inputTrigger) {
+            const t = right.map(({nick_name}) => nick_name)
+            setNameGroup(t)
+        }
+    },[right])
 
 
 
@@ -130,7 +179,13 @@ export default function ModalAddGroup({open, handleClose, allContacts, addGroupR
             <Fade in={open}>
                 <Paper className={classes.paper}>
                 <Grid container spacing={2} justify="center" alignItems="center" className={classes.root}>
-                    <Grid item>{customList(left)}</Grid>
+                    <Grid item>
+                        <Box className={classes.lineContact}>
+                            <InputLabel>Вашы контакты:</InputLabel>
+                        </Box>
+
+                        {customList(left)}
+                    </Grid>
                     <Grid item>
                         <Grid container direction="column" alignItems="center">
                             <Button
@@ -155,14 +210,26 @@ export default function ModalAddGroup({open, handleClose, allContacts, addGroupR
                             </Button>
                         </Grid>
                     </Grid>
-                    <Grid item>{customList(right)}</Grid>
+
+
+
+                    <Grid item>
+                        <InputLabel>Название беседы:</InputLabel>
+                        <Input
+                            value={nameGroup}
+                            onChange={addNameGroup}
+                            className={classes.lineGroup}
+                        />
+                        {customList(right)}
+                    </Grid>
                      </Grid>
+
 
                     <Button
                         variant='outlined'
                         className={classes.addGroup}
                         disabled={right.length ? false : true}
-                        onClick={() => addGroupRoom(right)}
+                        onClick={() => addGroupRoom({users:right, room_name: nameGroup})}
                     >Создать беседу</Button>
                 </Paper>
             </Fade>

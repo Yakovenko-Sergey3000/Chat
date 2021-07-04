@@ -37,9 +37,9 @@ class User {
         }
     }
 
-    async createGroupRoom({userAdmin, arrayUsers}) {
+    async createGroupRoom({userAdmin, arrayUsers, room_name}) {
         try {
-            await this.adapter.createGroupRoom(userAdmin,arrayUsers)
+            await this.adapter.createGroupRoom(userAdmin,arrayUsers, room_name)
         } catch (e) {
             console.log(e)
         }

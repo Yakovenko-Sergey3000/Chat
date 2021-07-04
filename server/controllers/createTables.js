@@ -74,7 +74,7 @@ module.exports.createTables = async () => {
                             table
                                 .increments('id')
                                 .primary()
-                            table.string('room_name', 20)
+                            table.text('room_name')
                             table
                                 .integer('user_id')
                                 .notNullable()

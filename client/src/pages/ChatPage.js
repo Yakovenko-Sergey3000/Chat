@@ -235,14 +235,16 @@ const ChatPage = () => {
     }
 
 
-    const createGroupRoom = async (users) => {
+    const createGroupRoom = async ({users, room_name}) => {
+
         if(users.length > 1) {
            await request(
                '/api/createGroup',
                'POST',
                JSON.stringify({
                    userAdmin: user.id,
-                   arrayUsers: users
+                   arrayUsers: users,
+                   room_name
                }),
                {'Content-Type': 'application/json'}
            )

@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core'
 import {makeStyles} from "@material-ui/core/styles";
 import ModalAddGroup from "./ModalAddGroup";
+import {AvatarGroup} from "@material-ui/lab";
 
 const useStyles = makeStyles({
     item: {
@@ -31,8 +32,11 @@ const useStyles = makeStyles({
         '&:hover': {
             background: '#999'
         },
-
-    }
+    },
+    small: {
+        width: '35px',
+        height: '35px',
+    },
 })
 
 
@@ -40,7 +44,7 @@ const useStyles = makeStyles({
 const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
     const classes = useStyles()
     const [open, setOpen] = useState(false)
-    const serverHost= process.env.REACT_APP_HOST_PORT_SERVER
+
 
     const handleClose = () => {
         setOpen(false)
@@ -63,17 +67,24 @@ const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
                 <Button onClick={() => setOpen(true)} className={classes.addGroup}><span className="material-icons">add</span></Button>
             </Tooltip>
             <List>
-                {rooms.map(({room_name, id: room_id, room_avatar, last_mess,type, users}) => {
+                {rooms.map(({room_name, id: room_id, type, room_avatar, last_mess, users}) => {
                             let lastMess = last_mess === null ? '' : last_mess
 
                     return (
                            <div className={classes.item} key={room_id} onClick={() => openRoom(room_id, users[0].id)} >
                                <ListItem alignItems="flex-start">
                                    <ListItemAvatar>
-                                       <Avatar alt="Remy Sharp" src={room_avatar || null} />
+                                       {type === 'privat' ? <Avatar alt="Remy Sharp" src={room_avatar || null}/> :
+                                           <AvatarGroup max={2}>
+                                               {users.map(({url_avatar, id}) => {
+                                                  return <Avatar key={id} className={classes.small} alt="Remy Sharp" src={url_avatar || null}/>
+                                               })}
+                                           </AvatarGroup>
+                                       }
+
                                    </ListItemAvatar>
                                    <ListItemText
-                                       primary={room_name}
+                                       primary={room_name.length > 22 ? room_name.slice(0, 22): room_name}
                                        secondary={
                                            <React.Fragment>
                                                <Typography

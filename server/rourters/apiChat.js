@@ -71,7 +71,6 @@ router.post('/openRoom', async (req,res) => {
 
 router.post('/createGroup', async (req, res) => {
   await user.createGroupRoom(req.body)
-   
 })
 
 

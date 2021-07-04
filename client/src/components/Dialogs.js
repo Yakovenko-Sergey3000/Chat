@@ -1,6 +1,6 @@
 import {AppBar, Avatar, Box, Button, Icon, IconButton, Paper, TextField, Toolbar, Typography} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import ModalDialogInfo from "./ModalDialogInfo";
 import date from 'date-and-time'
 
@@ -141,10 +141,16 @@ const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [],
     const [menu, setMenu] = useState(false);
     const [open, setOpen] = useState(false);
     const [text, setText] = useState('')
-    const {url_avatar, id: userId} = user
+    const {url_avatar, id} = user
     const {id: room_id, room_name, users, type} = room[0];
+    const heightDialog = useRef('')
 
 
+
+    useEffect(() => {
+        let h = heightDialog.current.scrollHeight;
+       heightDialog.current.scrollTop = h
+    }, [allHistoryMess])
     const openMenu= () => {
        setMenu(prev => !prev)
     }
@@ -184,7 +190,7 @@ const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [],
 
 
         return (
-            <Box className={classes.dialog}>
+            <Box ref={heightDialog} className={classes.dialog}>
                 {allHistoryMess.map(({id,mess, time, user_id, nick_name}) => {
 
                     users.find(item => item.id === user_id) ? flex = '' : flex = 'flex-end';
@@ -229,8 +235,12 @@ const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [],
 
             <Toolbar className={classes.infoBar}>
                 <Box>
-                    <Typography className={classes.nickContact}>{room_name}</Typography>
-                    <Typography className={classes.statusContact}>online</Typography>
+                    <Typography className={classes.nickContact}>
+                        {type === 'group' ? room_name.split(',').join(' ') : room_name}
+                    </Typography>
+                    {type === 'privat' ? <Typography className={classes.statusContact}>online</Typography> :
+                        <Typography className={classes.statusContact}>Количество участников: {users.length + 1}</Typography>
+                    }
                 </Box>
             <IconButton onClick={openMenu} onPointerLeave={closeMenu}>
                 <Icon><span className="material-icons-two-tone">more_vert</span></Icon>
@@ -246,9 +256,14 @@ const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [],
 
             >
                 {type === 'group' ?
+                    <Button className={classes.btnMunu} onClick={handleOpenModal}>Добавить пользователя</Button>:
+                    null
+                }
+                {type === 'group' ?
                     <Button className={classes.btnMunu} onClick={handleOpenModal}>Показать пользователей</Button>:
                     <Button className={classes.btnMunu} onClick={handleOpenModal}>Открыть профиль</Button>
                 }
+
                 {isContact?
                      null : <Button onClick={() => addContact(users[0].id)} className={classes.btnMunu}>Добавить контакт</Button>
                 }
@@ -290,7 +305,8 @@ const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [],
             <ModalDialogInfo
                 open={open}
                 handleClose={handleCloseModal}
-                users={users}
+                room={room}
+                userId={id}
             />
         </>
             )
