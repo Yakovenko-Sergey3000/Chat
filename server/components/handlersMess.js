@@ -24,13 +24,9 @@ const handlersMess = (io, socket) => {
         await user.sendMess({roomId, text, userId,created})
         await user.addLastMess(text, roomId)
         const res = await getMessRoom(roomId)
-        const rooms = await user.allUserRooms({userId: contactId})
 
-
-
-
-        io.in(roomId).emit('historyMess', res)
-        io.in(contactId).emit('massageInRoom', rooms);
+        io.in(roomId).in(contactId).emit('historyMess', res)
+      
     }
 
 

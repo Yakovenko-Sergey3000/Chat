@@ -95,6 +95,8 @@ const ChatPage = () => {
     const { request } = useHttp()
     const [dialog, setDialog] = useState([])
     const [roomMess, setRoomMess] = useState([])
+    const [trigerGroup, setTriggerGroup] = useState(false)
+
     const [loding, setLoding] = useState(false)
 
 
@@ -171,9 +173,9 @@ const ChatPage = () => {
                 })
         }
 
-    }, [user, roomMess])
+    }, [user, roomMess,trigerGroup])
 
-    console.log(rooms)
+    
 
 
     const addContact = async (contactId) => {
@@ -238,7 +240,7 @@ const ChatPage = () => {
 
 
     const createGroupRoom = async ({users, room_name}) => {
-
+        setTriggerGroup(prev => !prev)
         if(users.length > 1) {
            await request(
                '/api/createGroup',
@@ -250,10 +252,13 @@ const ChatPage = () => {
                }),
                {'Content-Type': 'application/json'}
            )
+          
         } else {
             openRoomModal(users[0].id)
+            
         }
     }
+   
 
     const openRoomMess = (room_id, contactId) => {
         const room = rooms.filter(item => item.id === room_id)
@@ -327,22 +332,7 @@ const ChatPage = () => {
     }
 
 
-    useEffect(() => {
-        socket.on('massageInRoom', (data) => {
-            const roomName = rooms.map(item => {
-                if (item.type === 'privat') {
-                    return {
-                        ...item,
-                        room_name: item.users[0].nick_name,
-                        room_avatar: item.users[0].url_avatar
-                    }
-                } else {
-                    return item
-                }
-            })
-            setRooms(roomName)
-        })
-    }, [])
+   
 
 
 
@@ -393,8 +383,6 @@ const ChatPage = () => {
                         </TabPanel>
 
                     </Grid>
-                    {/*<Grid item xs={9} style={{ backgroundImage: 'url("https://sun9-29.userapi.com/impf/c846121/v846121899/c610b/YQ5hYoJ9fNY.jpg?size=1280x1280&quality=96&sign=0dfe59067645a7dd9e655556e198492a&type=album")' }}>*/}
-                    {/*<Grid item xs={9} style={{ background: 'rgba(245,238,196,0.78)' }}>*/}
                      <Grid item xs={9} style={{backgroundImage: 'url("YQ5hYoJ9fNY.jpg")' }}>
                     {dialog.length ? <Dialogs
                             room={dialog}
