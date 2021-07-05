@@ -252,10 +252,11 @@ const ChatPage = () => {
                }),
                {'Content-Type': 'application/json'}
            )
+           leaveRoom()
           
         } else {
             openRoomModal(users[0].id)
-            
+            leaveRoom()
         }
     }
    
@@ -316,6 +317,12 @@ const ChatPage = () => {
     useEffect(() => {
         socket.on('historyMess', data => {
             setRoomMess(data)
+        })
+    }, [roomMess])
+
+    useEffect(() => {
+        socket.on('test', data => {
+            setTriggerGroup(prev => !prev)
         })
     }, [roomMess])
 

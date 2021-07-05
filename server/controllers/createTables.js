@@ -78,6 +78,10 @@ module.exports.createTables = async () => {
                             table
                                 .integer('user_id')
                                 .notNullable()
+                            table
+                                .text('last_mess')
+                            table
+                                .string('type', 20)
                         })
                 break
 
