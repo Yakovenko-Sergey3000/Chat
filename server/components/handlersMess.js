@@ -24,19 +24,36 @@ const handlersMess = (io, socket) => {
         await user.sendMess({roomId, text, userId,created})
         await user.addLastMess(text, roomId)
         const res = await getMessRoom(roomId)
+        const rooms = await user.allUserRooms({userId: contactId})
+
+
+
 
         io.in(roomId).emit('historyMess', res)
-        io.in(contactId).emit('massageInRoom', 'mess');
+        io.in(contactId).emit('massageInRoom', rooms);
     }
 
 
 
+
+    const removeMessage = async (roomId) => {
+        const mess = await user.removeMess(roomId)
+        io.in(roomId).emit('historyMess', mess)
+    }
+
+    const removeRoom = async (roomId) => {
+        const rooms = await user.removeRoom(roomId)
+    }
 
 
     socket.on('room:getMessRoom', getMessRoom)
     socket.on('user:sendMess', sendMess)
     socket.on('room:Join', joinRoom)
     socket.on('room:Leave', leaveRoom)
+    socket.on('room:removeMess', removeMessage)
+    socket.on('room:removeRoom', removeRoom)
+
+
 }
 
 module.exports = handlersMess;

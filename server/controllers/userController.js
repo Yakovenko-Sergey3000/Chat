@@ -107,7 +107,7 @@ class UserController  {
 
 
     async addRoomOnTable(userId, type = 'privat', room_name) {
-        const roomName = room_name.join(',') || ''
+        const roomName = room_name ? room_name.join(',') : ''
 
     return ( await knex('rooms').insert({user_id: userId, room_name: roomName, type: type})
            .returning('*'))
@@ -119,7 +119,8 @@ class UserController  {
         const rooms = await knex('rooms')
             .select('rooms.id', 'rooms.last_mess', 'rooms.type', 'rooms.room_name', 'rooms.user_id')
             .leftJoin('room_relation', 'room_relation.room_id', 'rooms.id')
-            .where('room_relation.user_id', userId );
+            .where('room_relation.user_id', userId )
+
 
         if (!rooms.length) {
             return rooms;
@@ -187,6 +188,20 @@ class UserController  {
             })
             .returning(['id', 'email', 'nick_name', 'sity', 'status']))
 
+
+    }
+
+    async removeMess(room_id) {
+        await knex('messages').select('*')
+            .where('room_id', room_id)
+            .del()
+
+        return this.allMessRoom(room_id)
+    }
+
+    async removeRoom(room_id) {
+        await knex('room_relation').where({room_id}).del()
+        await knex('rooms').where({id: room_id}).del()
 
     }
 

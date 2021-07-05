@@ -1,4 +1,16 @@
-import {AppBar, Avatar, Box, Button, Icon, IconButton, Paper, TextField, Toolbar, Typography} from "@material-ui/core";
+import {
+    AppBar,
+    Avatar,
+    Box,
+    Button,
+    CircularProgress,
+    Icon,
+    IconButton,
+    Paper,
+    TextField,
+    Toolbar,
+    Typography
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import {useEffect, useRef, useState} from "react";
 import ModalDialogInfo from "./ModalDialogInfo";
@@ -132,11 +144,28 @@ const useStyle = makeStyles({
         borderRadius: 0,
         color: '#fff',
         backgroundColor: '#2a9286'
+    },
+    blockLoding: {
+        width: '100%',
+    },
+    spinner: {
+        margin: '250px 450px'
     }
+
 })
 
 
-const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [], sendMess, user}) => {
+const Dialogs = ({room,
+                     closeDialog,
+                     isContact,
+                     addContact,
+                     allHistoryMess = [],
+                     sendMess,
+                     user,
+                     removeMess,
+                     removeRoom,
+                     }) => {
+
     const classes = useStyle();
     const [menu, setMenu] = useState(false);
     const [open, setOpen] = useState(false);
@@ -144,16 +173,25 @@ const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [],
     const {url_avatar, id} = user
     const {id: room_id, room_name, users, type} = room[0];
     const heightDialog = useRef('')
+    const [loding, setLoding] = useState(false)
+
 
 
 
     useEffect(() => {
-        let h = heightDialog.current.scrollHeight;
-       heightDialog.current.scrollTop = h
+        if(!allHistoryMess) {
+           setLoding(true)
+        } else {
+            setLoding(false)
+            let h = heightDialog.current.scrollHeight;
+            heightDialog.current.scrollTop = h;
+        }
     }, [allHistoryMess])
+
     const openMenu= () => {
        setMenu(prev => !prev)
     }
+
     const closeMenu = () => {
         setMenu(false)
     }
@@ -279,7 +317,7 @@ const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [],
 
 
 
-              {renderMess}
+            {loding ? <Box className={classes.blockLoding} ><CircularProgress className={classes.spinner} /> </Box>: renderMess}
 
 
 
@@ -307,6 +345,9 @@ const Dialogs = ({room, closeDialog, isContact, addContact, allHistoryMess = [],
                 handleClose={handleCloseModal}
                 room={room}
                 userId={id}
+                removeMess={removeMess}
+                removeRoom={removeRoom}
+
             />
         </>
             )

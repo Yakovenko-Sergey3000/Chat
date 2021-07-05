@@ -4,6 +4,8 @@ import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
 import {Avatar, Box, Button, List, ListItem, Typography} from "@material-ui/core";
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -62,10 +64,54 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-export default function ModalDialogInfo({open, handleClose, room, userId}) {
+export default function ModalDialogInfo({open, handleClose, room, userId, removeMess, removeRoom,}) {
     const classes = useStyles();
 
-    const {users, type, user_id: admin, room_name} = room[0];
+    const {users, type, user_id: admin, room_name, id:room_id} = room[0];
+
+    const submit = (type) => {
+        if(type === 'mess') {
+            confirmAlert({
+                title: 'Внимание',
+                message: 'Это удалит историю для всех пользователей этого диалога',
+                buttons: [
+                    {
+                        label: 'Удалить',
+                        onClick: () => removeMess(room_id)
+                    },
+                    {
+                        label: 'Отменить',
+
+                    }
+                ]
+            });
+        } else {
+            confirmAlert({
+                title: 'Внимание',
+                message: 'Этот диалог будет удален у всех пользователей',
+                buttons: [
+                    {
+                        label: 'Удалить',
+                        onClick: () => removeRoom(room_id)
+                    },
+                    {
+                        label: 'Отменить',
+
+                    }
+                ]
+            });
+        }
+    };
+
+    const delMess = () => {
+        handleClose()
+        submit('mess')
+    }
+
+    const delDialog = () => {
+        handleClose()
+        submit('room')
+    }
 
 
     const barInfo = () => {
@@ -115,6 +161,7 @@ export default function ModalDialogInfo({open, handleClose, room, userId}) {
                             <Button
                                 variant={'outlined'}
                                 className={classes.btn}
+                                onClick={delMess}
 
                             >Очисить сообщения</Button>
                         </Box>
@@ -122,7 +169,7 @@ export default function ModalDialogInfo({open, handleClose, room, userId}) {
                             <Button
                                 variant={'outlined'}
                                 className={classes.btnDel}
-
+                                onClick={delDialog}
                             >Удалить диалог</Button>
                         </Box>
                     </>
@@ -137,6 +184,13 @@ export default function ModalDialogInfo({open, handleClose, room, userId}) {
 
                             >Добавить пользователя</Button>
                         </Box>
+                        <Box className={classes.info} mt={2}>
+                            <Button
+                                variant={'outlined'}
+                                className={classes.btnDel}
+                                onClick={delMess}
+                            >Очисить сообщения</Button>
+                        </Box>
                     </>
                 )
 
@@ -149,14 +203,14 @@ export default function ModalDialogInfo({open, handleClose, room, userId}) {
                         <Button
                             variant={'outlined'}
                             className={classes.btn}
-
+                            onClick={delMess}
                         >Очисить сообщения</Button>
                     </Box>
                     <Box className={classes.info} mt={2}>
                         <Button
                             variant={'outlined'}
                             className={classes.btnDel}
-
+                            onClick={delDialog}
                         >Удалить диалог</Button>
                     </Box>
                 </>

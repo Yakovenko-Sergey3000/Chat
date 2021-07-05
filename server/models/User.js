@@ -87,6 +87,25 @@ class User {
         }
     }
 
+    async removeMess(room_id) {
+        try {
+            return await this.adapter.removeMess(room_id)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    async removeRoom(room_id) {
+
+        try {
+            return await this.adapter.removeRoom(room_id)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+
+
 
 
 }

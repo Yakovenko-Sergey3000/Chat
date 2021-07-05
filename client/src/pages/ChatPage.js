@@ -91,14 +91,11 @@ const ChatPage = () => {
     const [rooms, setRooms] = useState([])
 
 
-
     const [user, setUser] = useState('')
     const { request } = useHttp()
     const [dialog, setDialog] = useState([])
     const [roomMess, setRoomMess] = useState([])
-    const firstRender = useRef(false)
-    const [trigerMess, setTrigerMess] = useState(true)
-
+    const [loding, setLoding] = useState(false)
 
 
 
@@ -120,7 +117,6 @@ const ChatPage = () => {
             setUser(user)
             socket.emit('user:login', user.id)
         }
-
     }, [auth.user])
 
 
@@ -146,32 +142,39 @@ const ChatPage = () => {
         setAllContacts(res)
     }
 
-    const userRooms = async () => {
-
-        const rooms = await request(
-            '/api/allUserRooms',
-            'POST',
-            JSON.stringify({userId: user.id}),
-            {'Content-Type': 'application/json'}
-        )
 
 
+    useEffect(() => {
+        if(user) {
+            request(
+                '/api/allUserRooms',
+                'POST',
+                JSON.stringify({userId: user.id}),
+                {'Content-Type': 'application/json'}
+            )
+                .then(rooms => {
 
-        const roomName = rooms.map(item => {
-            if (item.type === 'privat') {
-                return {
-                    ...item,
-                    room_name: item.users[0].nick_name,
-                    room_avatar: item.users[0].url_avatar
-                }
-            } else {
-                return item
-            }
-        })
+                    const roomName = rooms.map(item => {
+                        if (item.type === 'privat') {
+                            return {
+                                ...item,
+                                room_name: item.users[0].nick_name,
+                                room_avatar: item.users[0].url_avatar
+                            }
+                        } else {
+                            return item
+                        }
+                    })
+                    userContacts()
+                    setRooms(roomName)
 
-        setRooms(roomName)
-        await userContacts()
-    }
+                })
+        }
+
+    }, [user, roomMess])
+
+    console.log(rooms)
+
 
     const addContact = async (contactId) => {
        const userContacts =  await request('/api/addContact',
@@ -228,7 +231,6 @@ const ChatPage = () => {
         })
         setIsContact(true)
         setDialog(roomName)
-        getMessRoom(room[0].id)
         joinRoom(room[0].id)
         leaveRoom()
 
@@ -262,7 +264,6 @@ const ChatPage = () => {
             setIsContact(res)
         }
         setDialog(room)
-        getMessRoom(room_id)
         joinRoom(room_id)
         leaveRoom()
     }
@@ -278,19 +279,24 @@ const ChatPage = () => {
 
 
 
+   useEffect(() => {
+      if(dialog.length) {
+          socket.emit('room:getMessRoom', dialog[0].id)
+          socket.on('setMessRoom', data => {
+              setRoomMess(data)
+          })
+      }
+    }, [dialog])
 
-    const getMessRoom = (roomId) => {
-        socket.emit('room:getMessRoom', roomId)
-        socket.on('setMessRoom', data => {
-            setRoomMess(data)
-        })
-    }
+
+
+
 
     const sendMess = (contactId, text, roomId, created) => {
        socket.emit('user:sendMess', {
            contactId, text, roomId, userId: user.id, created
-       })
 
+       })
     }
 
 
@@ -302,30 +308,43 @@ const ChatPage = () => {
 
 
 
+    useEffect(() => {
+        socket.on('historyMess', data => {
+            setRoomMess(data)
+        })
+    }, [roomMess])
 
-    socket.on('historyMess', data => {
-        setRoomMess(data)
-    })
+
+    const removeMessages = (roomId) => {
+        socket.emit('room:removeMess', roomId)
+    }
+
+    const removeRoom = (roomId) => {
+        removeMessages(roomId)
+        socket.emit('room:removeRoom', roomId)
+        leaveRoom()
+        setDialog([])
+    }
 
 
     useEffect(() => {
-            socket.on('massageInRoom', (data) => {
-                console.log(data)
+        socket.on('massageInRoom', (data) => {
+            const roomName = rooms.map(item => {
+                if (item.type === 'privat') {
+                    return {
+                        ...item,
+                        room_name: item.users[0].nick_name,
+                        room_avatar: item.users[0].url_avatar
+                    }
+                } else {
+                    return item
+                }
             })
-    })
+            setRooms(roomName)
+        })
+    }, [])
 
 
-
-    // useEffect(() => {
-    //
-    //     if(firstRender.current) {
-    //         console.log('triger')
-    //         // userRooms()
-    //     } else {
-    //         firstRender.current = true
-    //     }
-    //
-    // }, [])
 
 
 
@@ -336,7 +355,7 @@ const ChatPage = () => {
                     <Grid item xs={3} className={classes.panel}>
                         <AppBar position={'sticky'}>
                             <Tabs value={tabValue} onChange={handleChange} aria-label="simple tabs example" className={classes.menuPanel}>
-                                <Tab component={Link} to='/mess'  onClick={userRooms} label={<Icon><span className="material-icons.md-18">mail</span></Icon>}{...a11yProps(0)} className={classes.btn} />
+                                <Tab component={Link} to='/mess'  label={<Icon><span className="material-icons.md-18">mail</span></Icon>}{...a11yProps(0)} className={classes.btn} />
                                 <Tab component={Link} to='/contacts' onClick={userContacts} label={<Icon><span className="material-icons.md-18">perm_contact_calendar</span></Icon>} {...a11yProps(1)} className={classes.btn} />
                                 <Tab component={Link} to='/search' onClick={findAllUsers} label={<Icon><span className="material-icons.md-18">search</span></Icon>} {...a11yProps(2)} className={classes.btn} />
                                 <Tab component={Link} to='/settings' label={<Icon><span className="material-icons.md-18">build_circle</span></Icon>} {...a11yProps(3)} className={classes.btn}/>
@@ -375,8 +394,8 @@ const ChatPage = () => {
 
                     </Grid>
                     {/*<Grid item xs={9} style={{ backgroundImage: 'url("https://sun9-29.userapi.com/impf/c846121/v846121899/c610b/YQ5hYoJ9fNY.jpg?size=1280x1280&quality=96&sign=0dfe59067645a7dd9e655556e198492a&type=album")' }}>*/}
-                    <Grid item xs={9} style={{ background: 'rgba(245,238,196,0.78)' }}>
-
+                    {/*<Grid item xs={9} style={{ background: 'rgba(245,238,196,0.78)' }}>*/}
+                     <Grid item xs={9} style={{backgroundImage: 'url("YQ5hYoJ9fNY.jpg")' }}>
                     {dialog.length ? <Dialogs
                             room={dialog}
                             closeDialog={closeDialog}
@@ -385,6 +404,9 @@ const ChatPage = () => {
                             sendMess={sendMess}
                             allHistoryMess={roomMess}
                             user={user}
+                            removeMess={removeMessages}
+                            removeRoom={removeRoom}
+
                         /> : null}
                     </Grid>
 
