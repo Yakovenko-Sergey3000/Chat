@@ -259,6 +259,15 @@ const ChatPage = () => {
             leaveRoom()
         }
     }
+
+    const updateSizeGroup = async (roomId, users,roomName) => {
+        socket.emit('user:updateGroup', {
+            room_id: roomId,
+            users: users,
+            room_name: roomName
+        })
+
+    }
    
 
     const openRoomMess = (room_id, contactId) => {
@@ -318,14 +327,12 @@ const ChatPage = () => {
         socket.on('historyMess', data => {
             setRoomMess(data)
         })
-    }, [roomMess])
-
-    useEffect(() => {
-        socket.on('test', data => {
+        socket.on('newMess', data => {
             setTriggerGroup(prev => !prev)
         })
     }, [roomMess])
 
+    
 
     const removeMessages = (roomId) => {
         socket.emit('room:removeMess', roomId)
@@ -401,6 +408,8 @@ const ChatPage = () => {
                             user={user}
                             removeMess={removeMessages}
                             removeRoom={removeRoom}
+                            allContacts={allContacts}
+                            updateSizeGroup={updateSizeGroup}
 
                         /> : null}
                     </Grid>

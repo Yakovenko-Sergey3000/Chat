@@ -14,6 +14,7 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 import {useEffect, useRef, useState} from "react";
 import ModalDialogInfo from "./ModalDialogInfo";
+import ModalGroupSettings from "./modalGroupSettings";
 import date from 'date-and-time'
 
 const useStyle = makeStyles({
@@ -164,11 +165,14 @@ const Dialogs = ({room,
                      user,
                      removeMess,
                      removeRoom,
+                     allContacts,
+                     updateSizeGroup
                      }) => {
 
     const classes = useStyle();
     const [menu, setMenu] = useState(false);
-    const [open, setOpen] = useState(false);
+    const [openInfo, setOpenInfo] = useState(false);
+    const [openSettings, setOpenSettings] = useState(false);
     const [text, setText] = useState('')
     const {url_avatar, id} = user
     const {id: room_id, room_name, users, type} = room[0];
@@ -197,11 +201,19 @@ const Dialogs = ({room,
     }
 
     const handleOpenModal = () => {
-        setOpen(true)
+        setOpenInfo(true)
     }
 
     const handleCloseModal = () => {
-        setOpen(false)
+        setOpenInfo(false)
+    }
+
+    const handleOpenModalSettings = () => {
+        setOpenSettings(true)
+    }
+
+    const handleCloseModalSettings = () => {
+        setOpenSettings(false)
     }
 
     const sendMessage = () => {
@@ -293,13 +305,14 @@ const Dialogs = ({room,
                 onPointerLeave={closeMenu}
 
             >
-                {type === 'group' ?
-                    <Button className={classes.btnMunu} onClick={handleOpenModal}>Добавить пользователя</Button>:
-                    null
-                }
+                
                 {type === 'group' ?
                     <Button className={classes.btnMunu} onClick={handleOpenModal}>Показать пользователей</Button>:
                     <Button className={classes.btnMunu} onClick={handleOpenModal}>Открыть профиль</Button>
+                }
+                {type === 'group' ?
+                    <Button className={classes.btnMunu} onClick={handleOpenModalSettings}>Изменить беседу</Button>:
+                    null
                 }
 
                 {isContact?
@@ -341,7 +354,7 @@ const Dialogs = ({room,
         </div>
 
             <ModalDialogInfo
-                open={open}
+                open={openInfo}
                 handleClose={handleCloseModal}
                 room={room}
                 userId={id}
@@ -349,6 +362,17 @@ const Dialogs = ({room,
                 removeRoom={removeRoom}
 
             />
+            {type === 'privat' ? null :
+                <ModalGroupSettings
+                open={openSettings}
+                handleClose={handleCloseModalSettings}
+                users={users}
+                allContacts={allContacts}
+                roomName={room_name}
+                updateSizeGroup={updateSizeGroup}
+                roomId={room_id}
+            />
+            }
         </>
             )
 }

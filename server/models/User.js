@@ -104,6 +104,13 @@ class User {
         }
     }
 
+    async updateSizeGroup({room_id,users,room_name}) {
+        try {
+            return await this.adapter.updateSizeGroup(room_id,users,room_name)
+        } catch (e) {
+            console.log(e)
+        }
+    }
 
 
 

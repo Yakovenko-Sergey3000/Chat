@@ -205,6 +205,12 @@ class UserController  {
 
     }
 
+    async updateSizeGroup(room_id,users,room_name) {
+        console.log(users);
+            const usersInRoom = await knex('room_relation').select('user_id').where('room_id', room_id)
+            console.log(usersInRoom);
+    }
+
 }
 
 module.exports = UserController;
