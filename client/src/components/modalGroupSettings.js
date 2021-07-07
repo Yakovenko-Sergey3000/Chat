@@ -80,7 +80,7 @@ function intersection(a, b) {
     return a.filter((value) => b.indexOf(value) !== -1);
 }
 
-export default function ModalGroupSettings({open, handleClose, users, allContacts,roomId, roomName,updateSizeGroup}) {
+export default function ModalGroupSettings({open, handleClose, users, allContacts,roomId, roomName,updateSizeGroup, userId}) {
     
     const classes = useStyles();
     const [checked, setChecked] = React.useState([]);
@@ -148,7 +148,12 @@ export default function ModalGroupSettings({open, handleClose, users, allContact
     }, [])
 
     const onUpdateGroup = () => {
-        updateSizeGroup(roomId, right.map(({id}) => id), nameGroup)
+        updateSizeGroup(
+            roomId,
+            right.map(({id}) => id),
+            nameGroup,
+            userId
+             )
         handleClose()
     }
 

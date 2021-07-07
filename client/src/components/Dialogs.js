@@ -174,7 +174,7 @@ const Dialogs = ({room,
     const [openInfo, setOpenInfo] = useState(false);
     const [openSettings, setOpenSettings] = useState(false);
     const [text, setText] = useState('')
-    const {url_avatar, id} = user
+    const {url_avatar, id:userId} = user
     const {id: room_id, room_name, users, type} = room[0];
     const heightDialog = useRef('')
     const [loding, setLoding] = useState(false)
@@ -237,25 +237,20 @@ const Dialogs = ({room,
 
     const messagesArray = () => {
         let flex = ''
-
+        
 
         return (
             <Box ref={heightDialog} className={classes.dialog}>
-                {allHistoryMess.map(({id,mess, time, user_id, nick_name}) => {
-
-                    users.find(item => item.id === user_id) ? flex = '' : flex = 'flex-end';
-                    let url = ''
-                    users.forEach(user=> {
-                        if(user.id === user_id) {
-                            url = user.url_avatar
-                        }
-                    })
-
+                {allHistoryMess.map(({id:mess_id,mess, time, user_id, nick_name, url_avatar}) => {
+                       
+                    user_id === userId ? flex = 'flex-end' : flex = '';
+                   
                     const dateCreatedMess = new Date(Date.parse(time))
                     const formatTime = date.format(dateCreatedMess, 'DD-MM-YY hh:mm')
+                   
                    return (
-                       <Box component={'li'} key={id} className={classes.mess} style={{justifyContent: flex}}>
-                           <Avatar src={url || url_avatar}/>
+                       <Box component={'li'} key={mess_id} className={classes.mess} style={{justifyContent: flex}}>
+                           <Avatar src={url_avatar || null}/>
                            <Paper className={classes.messBody}>
                                <Box>
                                    <Typography className={classes.nick_name}>
@@ -357,7 +352,7 @@ const Dialogs = ({room,
                 open={openInfo}
                 handleClose={handleCloseModal}
                 room={room}
-                userId={id}
+                userId={userId}
                 removeMess={removeMess}
                 removeRoom={removeRoom}
 
@@ -371,6 +366,7 @@ const Dialogs = ({room,
                 roomName={room_name}
                 updateSizeGroup={updateSizeGroup}
                 roomId={room_id}
+                userId={userId}
             />
             }
         </>

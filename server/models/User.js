@@ -104,12 +104,16 @@ class User {
         }
     }
 
-    async updateSizeGroup({room_id,users,room_name}) {
+    async updateSizeGroup({room_id,users,room_name, user_id}) {
         try {
-            return await this.adapter.updateSizeGroup(room_id,users,room_name)
+            await this.adapter.updateSizeGroup(room_id,users,room_name, user_id)
         } catch (e) {
             console.log(e)
         }
+    }
+
+    async setStatus({user_id, status}) {
+        await this.adapter.setStatus(user_id, status)
     }
 
 

@@ -6,11 +6,32 @@ import {
     ListItem,
     ListItemAvatar,
     ListItemText,
-    Typography
+    Typography,
+    Badge
 } from '@material-ui/core'
-import {makeStyles} from "@material-ui/core/styles";
+import {makeStyles, withStyles} from "@material-ui/core/styles";
 import LodingUsers from "./LodingUsers";
 import ModalAddContact from "./ModalAddContact";
+
+
+const StyledBadge = withStyles((theme) => ({
+    badge: {
+      backgroundColor: '#44b700',
+      color: '#44b700',
+      boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+      
+    },
+    '@keyframes ripple': {
+      '0%': {
+        transform: 'scale(.8)',
+        opacity: 1,
+      },
+      '100%': {
+        transform: 'scale(2.4)',
+        opacity: 0,
+      },
+    },
+  }))(Badge);
 
 const useStyles = makeStyles({
     item: {
@@ -27,7 +48,10 @@ const useStyles = makeStyles({
 
 
 
+
+
 const SearchAllUsers = ({allUsers, addContact, authUser}) => {
+    console.log(allUsers);
     const classes = useStyles();
     const [openModal, setOpenModal] = useState(false);
     const [user, setUser] = useState(null);
@@ -55,7 +79,7 @@ const SearchAllUsers = ({allUsers, addContact, authUser}) => {
     return (
         <>
         <List>
-            {allUsers.map(({email, id, nick_name, url_avatar}) => {
+            {allUsers.map(({email, id, nick_name, url_avatar, status}) => {
                 if(id === authUser) {
                     return null
                 }
@@ -63,7 +87,20 @@ const SearchAllUsers = ({allUsers, addContact, authUser}) => {
                     <div key={id} >
                         <ListItem alignItems="flex-start"className={classes.item} onClick={handleOpenModal} id={id}>
                             <ListItemAvatar >
+                                {status?  <StyledBadge
+                                overlap="circle"
+                                anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'right',
+                                }}
+                                variant="dot"
+                            >
                                 <Avatar alt="Remy Sharp" src={url_avatar}/>
+                            </StyledBadge> :  <Avatar alt="Remy Sharp" src={url_avatar}/>}
+                           
+                                     
+                               
+                            
                             </ListItemAvatar>
                             <ListItemText
                                 primary={nick_name}

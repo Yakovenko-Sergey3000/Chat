@@ -41,9 +41,7 @@ io.on('connection', (socket) => {
     console.log('connection' + ' ' + new Date().getHours() + ':' + new Date().getMinutes());
     hadlersUser(io, socket);
     hadlersMess(io, socket);
-    socket.on('disconnect', () => {
-        console.log('DISconnect' + ' ' + new Date().getHours() + ':' + new Date().getMinutes());
-    })
+    
 
 })
 

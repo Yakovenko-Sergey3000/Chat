@@ -260,11 +260,12 @@ const ChatPage = () => {
         }
     }
 
-    const updateSizeGroup = async (roomId, users,roomName) => {
+    const updateSizeGroup = async (roomId, users,roomName, userId) => {
         socket.emit('user:updateGroup', {
             room_id: roomId,
             users: users,
-            room_name: roomName
+            room_name: roomName,
+            user_id: userId
         })
 
     }
@@ -330,6 +331,9 @@ const ChatPage = () => {
         socket.on('newMess', data => {
             setTriggerGroup(prev => !prev)
         })
+        socket.on('updateGroup', () => {
+            setTriggerGroup(prev => !prev)
+        })
     }, [roomMess])
 
     
@@ -346,16 +350,10 @@ const ChatPage = () => {
     }
 
 
-   
-
-
-
-
-
     return (
 
             <Container fixed>
-                <Grid container className={classes.container} >
+                <Grid  container className={classes.container} >
                     <Grid item xs={3} className={classes.panel}>
                         <AppBar position={'sticky'}>
                             <Tabs value={tabValue} onChange={handleChange} aria-label="simple tabs example" className={classes.menuPanel}>

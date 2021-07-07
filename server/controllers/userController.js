@@ -2,7 +2,13 @@ const knex = require('../configDB');
 
 class UserController  {
     async findAllUsers() {
-        return (await knex('users').select('id', 'email','nick_name', 'url_avatar'))
+        return (await knex('users').select('id', 'email','nick_name', 'url_avatar', 'status'))
+    }
+
+    
+
+    async setStatus(user_id, status) {
+        await knex('users').update({status}).where({id: user_id})
     }
 
     async addContact(userId, contactId) {
@@ -143,7 +149,7 @@ class UserController  {
     }
     async allMessRoom(roomId) {
         return (await  knex('messages')
-            .select(['messages.*', 'users.nick_name'] )
+            .select(['messages.*', 'users.nick_name', 'users.url_avatar'] )
             .leftJoin('users', 'messages.user_id', 'users.id')
             .where('messages.room_id', roomId)
             .orderBy('time'))
@@ -195,6 +201,7 @@ class UserController  {
         await knex('messages').select('*')
             .where('room_id', room_id)
             .del()
+            await this.addLastMess('', room_id)
 
         return this.allMessRoom(room_id)
     }
@@ -205,10 +212,21 @@ class UserController  {
 
     }
 
-    async updateSizeGroup(room_id,users,room_name) {
-        console.log(users);
-            const usersInRoom = await knex('room_relation').select('user_id').where('room_id', room_id)
-            console.log(usersInRoom);
+    async updateSizeGroup(room_id,users,room_name, user_id) {
+        
+            await knex('room_relation').select('*')
+            .where({room_id})
+            .whereNot({user_id})
+            .del()
+
+            await knex('rooms').update({room_name: room_name.join(',')}).where({id: room_id})
+            await knex('room_relation').insert(users.map(user_id => {
+                return {
+                     room_id,
+                     user_id
+                 }
+             }))
+        
     }
 
 }
