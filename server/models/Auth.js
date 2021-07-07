@@ -44,8 +44,15 @@ class Auth {
 
     async isAuth(id) {
         const res = await this.adapter.getSess(id);
-        const candidate = res[0].sess.user;
-        return candidate;
+          if(res.length) {
+            
+            const candidate = res[0].sess.user;
+    
+            return candidate;
+          } else {
+              return {}
+          }
+        
     }
 }
 

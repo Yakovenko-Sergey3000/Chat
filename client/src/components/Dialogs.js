@@ -16,6 +16,8 @@ import {useEffect, useRef, useState} from "react";
 import ModalDialogInfo from "./ModalDialogInfo";
 import ModalGroupSettings from "./modalGroupSettings";
 import date from 'date-and-time'
+import { confirmAlert } from 'react-confirm-alert'; // Import
+
 
 const useStyle = makeStyles({
     infoBar: {
@@ -174,11 +176,28 @@ const Dialogs = ({room,
     const [openInfo, setOpenInfo] = useState(false);
     const [openSettings, setOpenSettings] = useState(false);
     const [text, setText] = useState('')
-    const {url_avatar, id:userId} = user
+    const {id:userId} = user
     const {id: room_id, room_name, users, type} = room[0];
     const heightDialog = useRef('')
     const [loding, setLoding] = useState(false)
 
+
+    const submit = () => {
+            confirmAlert({
+                title: 'Внимание',
+                message: 'Этот диалог будет удален у всех пользователей',
+                buttons: [
+                    {
+                        label: 'Удалить',
+                        onClick: () => removeRoom(room_id)
+                    },
+                    {
+                        label: 'Отменить',
+
+                    }
+                ]
+            });
+    };
 
 
 
@@ -283,7 +302,9 @@ const Dialogs = ({room,
                     <Typography className={classes.nickContact}>
                         {type === 'group' ? room_name.split(',').join(' ') : room_name}
                     </Typography>
-                    {type === 'privat' ? <Typography className={classes.statusContact}>online</Typography> :
+                    {type === 'privat' ? <Typography className={classes.statusContact}>
+                        {users[0].status? 'online' : 'offline'}
+                    </Typography> :
                         <Typography className={classes.statusContact}>Количество участников: {users.length + 1}</Typography>
                     }
                 </Box>
@@ -319,7 +340,7 @@ const Dialogs = ({room,
             {isContact ?
                 null : <Paper className={classes.isContact}>
                         <Button onClick={() => addContact(users[0].id)} className={classes.btnIsContact}>Добавить контакт</Button>
-                        <Button className={`${classes.btnIsContact} ${classes.btnClose}`}>Удалить диалог</Button>
+                        <Button onClick={submit} className={`${classes.btnIsContact} ${classes.btnClose}`}>Удалить диалог</Button>
                     </Paper>
             }
 

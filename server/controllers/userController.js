@@ -27,7 +27,7 @@ class UserController  {
 
 
     async findContacts(id) {
-   return (await knex('contacts').select('users.email','users.id', 'nick_name', 'users.url_avatar').
+   return (await knex('contacts').select('users.email','users.id', 'nick_name', 'users.url_avatar', 'users.status').
        leftJoin('users', 'users.id', 'contacts.contact_id').
            where('contacts.user_id', id))
     }
@@ -67,7 +67,7 @@ class UserController  {
 
     async joinPrivatRoomAndUsers(room, userId) {
             const user = await knex('users')
-                .select(['users.id', 'users.email', 'users.nick_name','users.url_avatar', 'room_relation.room_id'])
+                .select(['users.id', 'users.email', 'users.nick_name','users.url_avatar', 'users.status', 'room_relation.room_id'])
                 .leftJoin('room_relation', 'room_relation.user_id', 'users.id')
                 .where('room_relation.room_id', room.id)
                 .whereNot('users.id', userId)
@@ -133,7 +133,7 @@ class UserController  {
         }
 
         const users = await knex('users')
-            .select(['users.id', 'users.email', 'users.nick_name', 'users.url_avatar', 'users.sity', 'room_relation.room_id'])
+            .select(['users.id', 'users.email', 'users.nick_name', 'users.url_avatar', 'users.sity','users.status', 'room_relation.room_id'])
             .leftJoin('room_relation', 'room_relation.user_id', 'users.id')
             .whereIn('room_relation.room_id', rooms.map(({id}) => id) )
             .whereNot('users.id', userId)

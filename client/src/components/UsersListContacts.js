@@ -6,11 +6,23 @@ import {
     ListItem,
     ListItemAvatar,
     ListItemText,
-    Typography
+    Typography,
+    Badge
 } from '@material-ui/core'
-import {makeStyles} from "@material-ui/core/styles";
+import {makeStyles, withStyles} from "@material-ui/core/styles";
 import LodingUsers from "./LodingUsers";
 import ModalContacts from "./ModalContacts";
+
+const StyledBadge = withStyles((theme) => ({
+    badge: {
+      backgroundColor: '#44b700',
+      color: '#44b700',
+      boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+      
+    },
+   
+    
+  }))(Badge);
 
 
 const useStyles = makeStyles({
@@ -60,12 +72,21 @@ const UserContacts = ({contacts, openRoom, removeContact}) => {
 
 
     const RenderList = () => {
-          return  contacts.map(({email, id, nick_name, url_avatar}) => {
+          return  contacts.map(({email, id, nick_name, url_avatar, status}) => {
                     return (
                         <div key={id}>
                             <ListItem onClick={handleOpenModal} alignItems="flex-start"  className={classes.item} id={id}>
                                 <ListItemAvatar>
-                                    <Avatar alt="Remy Sharp" src={url_avatar}/>
+                                {status?  <StyledBadge
+                                overlap="circle"
+                                anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'right',
+                                }}
+                                variant="dot"
+                            >
+                                <Avatar alt="Avatar" src={url_avatar}/>
+                            </StyledBadge> :  <Avatar alt="Avatar" src={url_avatar}/>}
                                 </ListItemAvatar>
                                 <ListItemText
                                     primary={nick_name}

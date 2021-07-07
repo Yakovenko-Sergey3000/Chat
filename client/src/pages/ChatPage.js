@@ -168,7 +168,7 @@ const ChatPage = () => {
                         }
                     })
                     userContacts()
-                    setRooms(roomName)
+                    setRooms(roomName.reverse())
 
                 })
         }
@@ -231,6 +231,7 @@ const ChatPage = () => {
                         room_avatar: item.users[0].url_avatar
             }
         })
+        console.log(roomName);
         setIsContact(true)
         setDialog(roomName)
         joinRoom(room[0].id)
@@ -238,7 +239,7 @@ const ChatPage = () => {
 
     }
 
-
+       
     const createGroupRoom = async ({users, room_name}) => {
         setTriggerGroup(prev => !prev)
         if(users.length > 1) {
@@ -279,6 +280,7 @@ const ChatPage = () => {
             const res = !!allContacts.find(item => item.id === contactId);
             setIsContact(res)
         }
+        
         setDialog(room)
         joinRoom(room_id)
         leaveRoom()

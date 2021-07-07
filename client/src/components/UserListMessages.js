@@ -8,11 +8,23 @@ import {
     ListItemAvatar,
     ListItemText,
     Tooltip,
-    Typography
+    Typography,
+    Badge
 } from '@material-ui/core'
-import {makeStyles} from "@material-ui/core/styles";
+import {makeStyles, withStyles} from "@material-ui/core/styles";
 import ModalAddGroup from "./ModalAddGroup";
 import {AvatarGroup} from "@material-ui/lab";
+
+const StyledBadge = withStyles((theme) => ({
+    badge: {
+      backgroundColor: '#44b700',
+      color: '#44b700',
+      boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+      
+    },
+   
+    
+  }))(Badge);
 
 const useStyles = makeStyles({
     item: {
@@ -61,6 +73,33 @@ const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
         setOpen(false)
     }
 
+    const renderRoomsAvatar = (type, users, room_avatar) => {
+        if(type === 'privat' && users[0].status) {
+                return (
+                    <StyledBadge
+                        overlap="circle"
+                        anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                        }}
+                        variant="dot"
+                    >
+                        <Avatar alt="Avatar" src={room_avatar}/> 
+                    </StyledBadge>
+                    
+                    
+                )
+        } else {
+            return (
+                <AvatarGroup max={2}>
+                    {users.map(({url_avatar, id}) => {
+                        return <Avatar key={id} className={classes.small} alt="Avatar" src={url_avatar || null}/>
+                    })}
+                </AvatarGroup>
+            )
+        }
+    }
+
     return (
         <>
             <Tooltip title='Создать беседу'>
@@ -69,19 +108,15 @@ const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
             <List>
                 {rooms.map(({room_name, id: room_id, type, room_avatar, last_mess, users}) => {
                             let lastMess = last_mess === null ? '' : last_mess
-
+                            
+                                 let renderAvatar =renderRoomsAvatar(type, users, room_avatar)
+                            
+                            
                     return (
                            <div className={classes.item} key={room_id} onClick={() => openRoom(room_id, users[0].id)} >
                                <ListItem alignItems="flex-start">
                                    <ListItemAvatar>
-                                       {type === 'privat' ? <Avatar alt="Remy Sharp" src={room_avatar || null}/> :
-                                           <AvatarGroup max={2}>
-                                               {users.map(({url_avatar, id}) => {
-                                                  return <Avatar key={id} className={classes.small} alt="Remy Sharp" src={url_avatar || null}/>
-                                               })}
-                                           </AvatarGroup>
-                                       }
-
+                                      {renderAvatar}
                                    </ListItemAvatar>
                                    <ListItemText
                                        primary={room_name.length > 22 ? room_name.slice(0, 22): room_name}

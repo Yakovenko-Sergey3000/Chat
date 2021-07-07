@@ -42,12 +42,13 @@ const hadlersUser = (io, socket) => {
         if(socket.handshake.headers.cookie) {
             const sess = socket.handshake.headers.cookie.split('=')[1]
             const userSess = await authUser.isAuth(sess)
-            
            
+            if(userSess.id) {
                 await user.setStatus({
                     user_id: userSess.id,
                     status: false
                 })
+            }
             
         }
         console.log('DISconnect' + ' ' + new Date().getHours() + ':' + new Date().getMinutes());

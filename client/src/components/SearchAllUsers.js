@@ -21,16 +21,8 @@ const StyledBadge = withStyles((theme) => ({
       boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
       
     },
-    '@keyframes ripple': {
-      '0%': {
-        transform: 'scale(.8)',
-        opacity: 1,
-      },
-      '100%': {
-        transform: 'scale(2.4)',
-        opacity: 0,
-      },
-    },
+   
+    
   }))(Badge);
 
 const useStyles = makeStyles({
@@ -51,7 +43,6 @@ const useStyles = makeStyles({
 
 
 const SearchAllUsers = ({allUsers, addContact, authUser}) => {
-    console.log(allUsers);
     const classes = useStyles();
     const [openModal, setOpenModal] = useState(false);
     const [user, setUser] = useState(null);
@@ -95,8 +86,8 @@ const SearchAllUsers = ({allUsers, addContact, authUser}) => {
                                 }}
                                 variant="dot"
                             >
-                                <Avatar alt="Remy Sharp" src={url_avatar}/>
-                            </StyledBadge> :  <Avatar alt="Remy Sharp" src={url_avatar}/>}
+                                <Avatar alt="Avatar" src={url_avatar}/>
+                            </StyledBadge> :  <Avatar alt="Avatar" src={url_avatar}/>}
                            
                                      
                                

@@ -1,11 +1,23 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
-import {Avatar, Box, Button, List, ListItem, Typography} from "@material-ui/core";
+import {Avatar, Box, Button, List, ListItem, Typography,Badge} from "@material-ui/core";
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'
+
+
+const StyledBadge = withStyles((theme) => ({
+    badge: {
+      backgroundColor: '#44b700',
+      color: '#44b700',
+      boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+      
+    },
+   
+    
+  }))(Badge)
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -116,11 +128,21 @@ export default function ModalDialogInfo({open, handleClose, room, userId, remove
 
     const barInfo = () => {
         if(type === 'group') {
-          return users.map(({nick_name, id, url_avatar}) => {
+          return users.map(({nick_name, id, url_avatar, status}) => {
+              
               return (
                   <ListItem key={id}>
                       <Box display='flex' alignItems='center'>
-                          <Avatar src={url_avatar}/>
+                      {status?  <StyledBadge
+                                overlap="circle"
+                                anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'right',
+                                }}
+                                variant="dot"
+                            >
+                                <Avatar alt="Avatar" src={url_avatar}/>
+                            </StyledBadge> :  <Avatar alt="Avatar" src={url_avatar}/>}
                           <Typography className={classes.group}>{nick_name}</Typography>
                       </Box>
                   </ListItem>
