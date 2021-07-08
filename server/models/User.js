@@ -116,6 +116,14 @@ class User {
         await this.adapter.setStatus(user_id, status)
     }
 
+    async getMessStatus({roomsId, userId}) {
+        return this.adapter.getMessStatus(roomsId, userId)
+    }
+
+
+    async setMessStatus({userId, roomId}) {
+        await this.adapter.setMessStatus(userId, roomId)
+    }
 
 
 

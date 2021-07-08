@@ -26,8 +26,11 @@ const StyledBadge = withStyles((theme) => ({
     
   }))(Badge);
 
+ 
+
 const useStyles = makeStyles({
     item: {
+        position: 'relative',
         transition: 'background .2s linear',
         '&:hover': {
             cursor: 'pointer',
@@ -49,6 +52,15 @@ const useStyles = makeStyles({
         width: '35px',
         height: '35px',
     },
+    badge: {
+        width:'20px',
+        margin: 'auto 0',
+        backgroundColor: '#3f51b5',
+        color: '#fff',
+        textAlign: 'center',
+       borderRadius: '50%'
+    }
+    
 })
 
 
@@ -100,24 +112,37 @@ const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
         }
     }
 
+    const renderCountMess = (num) => {
+
+        if(num) {
+            return (
+                <div className={classes.badge}>{num.count}</div>
+            )
+        } else {
+            return null
+        }
+
+    }
+
     return (
         <>
             <Tooltip title='Создать беседу'>
                 <Button onClick={() => setOpen(true)} className={classes.addGroup}><span className="material-icons">add</span></Button>
             </Tooltip>
             <List>
-                {rooms.map(({room_name, id: room_id, type, room_avatar, last_mess, users}) => {
+                {rooms.map(({room_name, id: room_id, type, room_avatar, last_mess, users, counDontRead}) => {
                             let lastMess = last_mess === null ? '' : last_mess
                             
-                                 let renderAvatar =renderRoomsAvatar(type, users, room_avatar)
-                            
+                                 let RenderAvatar =renderRoomsAvatar(type, users, room_avatar)
+                            let RenderCountMess = renderCountMess(counDontRead)
                             
                     return (
                            <div className={classes.item} key={room_id} onClick={() => openRoom(room_id, users[0].id)} >
                                <ListItem alignItems="flex-start">
                                    <ListItemAvatar>
-                                      {renderAvatar}
+                                      {RenderAvatar}
                                    </ListItemAvatar>
+                                   
                                    <ListItemText
                                        primary={room_name.length > 22 ? room_name.slice(0, 22): room_name}
                                        secondary={
@@ -133,6 +158,9 @@ const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
                                            </React.Fragment>
                                        }
                                    />
+                                
+                                  {RenderCountMess}
+                                   
                                </ListItem>
                                <Divider variant="inset" component="li" />
                            </div>

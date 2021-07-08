@@ -1,5 +1,5 @@
-import React, {useState, useContext, useEffect, useRef, useCallback} from 'react';
-import {Container, Grid, Icon, AppBar, Tabs, Tab, Box, Typography} from '@material-ui/core'
+import React, {useState, useContext, useEffect,useCallback} from 'react';
+import {Container, Grid, Icon, AppBar, Tabs, Tab, Box, Typography,Badge} from '@material-ui/core'
 import PropTypes from 'prop-types';
 import { makeStyles } from "@material-ui/core/styles";
 import UserSettings from "../components/UserSettings";
@@ -96,10 +96,11 @@ const ChatPage = () => {
     const [dialog, setDialog] = useState([])
     const [roomMess, setRoomMess] = useState([])
     const [trigerGroup, setTriggerGroup] = useState(false)
+    const [dontReadMessCount, setDontReadMessCount] = useState(0)
 
     const [loding, setLoding] = useState(false)
 
-
+console.log(dontReadMessCount);
 
 
     const auth = useContext(AuthContext)
@@ -168,12 +169,33 @@ const ChatPage = () => {
                         }
                     })
                     userContacts()
-                    setRooms(roomName.reverse())
+                    setRooms(roomName)
+                    
 
                 })
         }
 
     }, [user, roomMess,trigerGroup])
+
+    
+
+    useEffect(() => {
+        if(rooms.length) {
+            request(
+                '/api/getMessStatus',
+                'POST',
+                JSON.stringify({
+                    roomsId: rooms.map(({id}) => id),
+                    userId: user.id
+                }),
+                {'Content-Type': 'application/json'}
+                
+                )
+                .then(count => {
+                    setDontReadMessCount(count[0].count)
+                })
+        }
+    }, [rooms])
 
     
 
@@ -231,7 +253,7 @@ const ChatPage = () => {
                         room_avatar: item.users[0].url_avatar
             }
         })
-        console.log(roomName);
+        
         setIsContact(true)
         setDialog(roomName)
         joinRoom(room[0].id)
@@ -270,6 +292,13 @@ const ChatPage = () => {
         })
 
     }
+
+    const setMessStatus = (roomId) => {
+        socket.emit('user:setMessStatus', {
+            userId: user.id,
+            roomId
+        })
+    }
    
 
     const openRoomMess = (room_id, contactId) => {
@@ -281,9 +310,12 @@ const ChatPage = () => {
             setIsContact(res)
         }
         
+        setMessStatus(room_id)
         setDialog(room)
         joinRoom(room_id)
         leaveRoom()
+
+        
     }
 
 
@@ -359,7 +391,15 @@ const ChatPage = () => {
                     <Grid item xs={3} className={classes.panel}>
                         <AppBar position={'sticky'}>
                             <Tabs value={tabValue} onChange={handleChange} aria-label="simple tabs example" className={classes.menuPanel}>
-                                <Tab component={Link} to='/mess'  label={<Icon><span className="material-icons.md-18">mail</span></Icon>}{...a11yProps(0)} className={classes.btn} />
+                              
+                                 <Tab component={Link} to='/mess'  label={
+                                      <Badge
+                                      badgeContent={dontReadMessCount} 
+                                      color="secondary">
+                                          <Icon><span className="material-icons.md-18">mail</span></Icon>
+                                          </Badge>
+                                 }{...a11yProps(0)} className={classes.btn} />
+                               
                                 <Tab component={Link} to='/contacts' onClick={userContacts} label={<Icon><span className="material-icons.md-18">perm_contact_calendar</span></Icon>} {...a11yProps(1)} className={classes.btn} />
                                 <Tab component={Link} to='/search' onClick={findAllUsers} label={<Icon><span className="material-icons.md-18">search</span></Icon>} {...a11yProps(2)} className={classes.btn} />
                                 <Tab component={Link} to='/settings' label={<Icon><span className="material-icons.md-18">build_circle</span></Icon>} {...a11yProps(3)} className={classes.btn}/>
@@ -410,6 +450,7 @@ const ChatPage = () => {
                             removeRoom={removeRoom}
                             allContacts={allContacts}
                             updateSizeGroup={updateSizeGroup}
+                            setMessStatus={setMessStatus}
 
                         /> : null}
                     </Grid>

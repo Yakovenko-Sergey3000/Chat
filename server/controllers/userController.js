@@ -126,8 +126,10 @@ class UserController  {
             .select('rooms.id', 'rooms.last_mess', 'rooms.type', 'rooms.room_name', 'rooms.user_id')
             .leftJoin('room_relation', 'room_relation.room_id', 'rooms.id')
             .where('room_relation.user_id', userId )
+            
 
 
+          
         if (!rooms.length) {
             return rooms;
         }
@@ -138,11 +140,17 @@ class UserController  {
             .whereIn('room_relation.room_id', rooms.map(({id}) => id) )
             .whereNot('users.id', userId)
 
+                
+        const countdontReadMess = await this.getMessStatus(rooms.map(({id}) => id), userId, 'oneRoom')
+            
+   
         return rooms.map((room) => {
             const {id} = room;
             const roomUsers = users.filter(({room_id}) => room_id == id);
-
-            return {...room, users: roomUsers};
+            const countMess = countdontReadMess.filter(({room_id}) => room_id === id)
+            
+            
+            return {...room, users: roomUsers, counDontRead: countMess[0]};
         })
 
 
@@ -227,6 +235,43 @@ class UserController  {
                  }
              }))
         
+    }
+
+    async getMessStatus(roomsId, userId, type='AllRooms') {
+        
+        if(type === 'AllRooms') {
+           return await knex('messages')
+                .leftJoin('rooms', 'rooms.id', 'messages.room_id')
+                .whereNot('messages.user_id', userId)
+                .whereIn('room_id', roomsId)
+                .where('isRead', false)
+                .count('isRead') 
+
+                
+
+        } else {
+            
+            return await knex('messages')
+            .leftJoin('rooms', 'rooms.id', 'messages.room_id')
+            .whereIn('messages.room_id', roomsId)
+            .where('messages.isRead', false)
+            .whereNot('messages.user_id', userId)
+            .groupBy('messages.room_id')
+            .count('isRead')
+            .select('messages.count', 'messages.room_id')
+            
+            
+        }
+    }
+
+    async setMessStatus(userId, roomId) {
+       
+       const t = await knex('messages')
+                .where({room_id: roomId})
+                .whereNot({user_id: userId})
+                .update({isRead: true})
+
+                console.log(t);
     }
 
 }

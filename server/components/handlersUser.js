@@ -54,13 +54,16 @@ const hadlersUser = (io, socket) => {
         console.log('DISconnect' + ' ' + new Date().getHours() + ':' + new Date().getMinutes());
     })
 
-
+    const setMessStatus = async (data) => {
+        await user.setMessStatus(data)
+    }
 
 
 
     socket.on('user:login', userLogin)
     socket.on('user:exit', userExit)
     socket.on('user:updateGroup', updateGroup)
+    socket.on('user:setMessStatus', setMessStatus)
 
 
 }

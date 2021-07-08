@@ -79,6 +79,12 @@ router.post('/allUserRooms', async (req, res) => {
     res.json(rooms)
 })
 
+router.post('/getMessStatus', async (req,res) => {
+    const count = await user.getMessStatus(req.body)
+
+    res.json(count)
+})
+
 
 
 module.exports = router;

@@ -133,9 +133,11 @@ const useStyle = makeStyles({
     },
     input: {
         width: '700px',
-        borderRadius: 0,
+        marginRight: '10px',
         background: '#fff',
-        border: 0,
+        boxShadow: 'none',
+        border: 'none',
+        borderRadius: '5px',
         '&:focus': {
             border: 'none',
         }
@@ -146,7 +148,10 @@ const useStyle = makeStyles({
         padding: '10px',
         borderRadius: 0,
         color: '#fff',
-        backgroundColor: '#2a9286'
+        backgroundColor: '#2a9286',
+        '&:hover': {
+            backgroundColor: '#19705F',
+        }
     },
     blockLoding: {
         width: '100%',
@@ -168,7 +173,8 @@ const Dialogs = ({room,
                      removeMess,
                      removeRoom,
                      allContacts,
-                     updateSizeGroup
+                     updateSizeGroup,
+                     setMessStatus
                      }) => {
 
     const classes = useStyle();
@@ -180,6 +186,8 @@ const Dialogs = ({room,
     const {id: room_id, room_name, users, type} = room[0];
     const heightDialog = useRef('')
     const [loding, setLoding] = useState(false)
+    const [errorInput, setErrorInput] = useState(false)
+    
 
 
     const submit = () => {
@@ -205,10 +213,12 @@ const Dialogs = ({room,
         if(!allHistoryMess) {
            setLoding(true)
         } else {
+            setMessStatus(room_id)
             setLoding(false)
             let h = heightDialog.current.scrollHeight;
             heightDialog.current.scrollTop = h;
         }
+        
     }, [allHistoryMess])
 
     const openMenu= () => {
@@ -236,17 +246,30 @@ const Dialogs = ({room,
     }
 
     const sendMessage = () => {
-
-        if (type=== 'privat') {
-            sendMess(users[0].id, text, room_id, new Date())
-            setText('')
-        } else {
-            const idUsers = users.map(({id}) => id)
-            sendMess(idUsers, text, room_id, new Date())
-            setText('')
+        setMessStatus(room_id)
+        switch(!!text) {
+           case true :
+            if (type=== 'privat') {
+                sendMess(users[0].id, text, room_id, new Date())
+                setText('')
+            } else {
+                const idUsers = users.map(({id}) => id)
+                sendMess(idUsers, text, room_id, new Date())
+                setText('')
+            }
+            break
+            case false :
+                setErrorInput(true)
+                break
         }
 
     }
+
+    useEffect(() => {
+        if(errorInput) {
+            setErrorInput(false)
+        }
+    }, [text])
 
     const keyPressMess = (key) => {
         if (key === 'Enter') {
@@ -352,10 +375,9 @@ const Dialogs = ({room,
 
         <div className={classes.form} >
            <TextField
-               id="outlined-full-width"
-               variant='outlined'
-               fullWidth
-              placeholder="Введите сообщение"
+                error={errorInput}
+                variant='outlined'
+                placeholder="Введите сообщение"
                className={classes.input}
                value={text}
                onChange={(e) => setText(e.target.value)}
