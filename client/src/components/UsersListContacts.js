@@ -13,6 +13,7 @@ import {makeStyles, withStyles} from "@material-ui/core/styles";
 import LodingUsers from "./LodingUsers";
 import ModalContacts from "./ModalContacts";
 
+
 const StyledBadge = withStyles((theme) => ({
     badge: {
       backgroundColor: '#44b700',
@@ -116,6 +117,10 @@ const UserContacts = ({contacts, openRoom, removeContact}) => {
 
 
     const render = RenderList()
+
+    if(!contacts.length) {
+        return <Typography>У вас нет контактов</Typography>
+    }
     return (
         <>
        <List>

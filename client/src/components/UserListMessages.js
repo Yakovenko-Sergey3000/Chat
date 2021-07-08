@@ -15,6 +15,7 @@ import {makeStyles, withStyles} from "@material-ui/core/styles";
 import ModalAddGroup from "./ModalAddGroup";
 import {AvatarGroup} from "@material-ui/lab";
 
+
 const StyledBadge = withStyles((theme) => ({
     badge: {
       backgroundColor: '#44b700',
@@ -55,6 +56,7 @@ const useStyles = makeStyles({
     badge: {
         width:'20px',
         margin: 'auto 0',
+        padding: '0 3px',
         backgroundColor: '#3f51b5',
         color: '#fff',
         textAlign: 'center',
@@ -74,11 +76,7 @@ const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
         setOpen(false)
     }
 
-    if (!rooms.length) {
-        return (
-            <p>Сообщений нет</p>
-        )
-    }
+    
 
     const addGroupRoom = (users) => {
         createGroupRoom(users)
@@ -124,8 +122,13 @@ const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
 
     }
 
-    return (
-        <>
+    
+
+
+        return (
+            <>
+
+        
             <Tooltip title='Создать беседу'>
                 <Button onClick={() => setOpen(true)} className={classes.addGroup}><span className="material-icons">add</span></Button>
             </Tooltip>
@@ -176,8 +179,12 @@ const UserListMessages = ({rooms, openRoom, allContacts, createGroupRoom}) => {
             /> : null}
 
         </>
+        
 
     )
+    
+
+    
 }
 
 export default UserListMessages;

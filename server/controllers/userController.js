@@ -266,12 +266,12 @@ class UserController  {
 
     async setMessStatus(userId, roomId) {
        
-       const t = await knex('messages')
+       await knex('messages')
                 .where({room_id: roomId})
                 .whereNot({user_id: userId})
                 .update({isRead: true})
 
-                console.log(t);
+                
     }
 
 }

@@ -63,7 +63,7 @@ const SearchAllUsers = ({allUsers, addContact, authUser}) => {
     }
     if(!allUsers) {
         return (
-            <LodingUsers/>
+            <Typography>Вы первый пользователь</Typography>
         )
     }
 

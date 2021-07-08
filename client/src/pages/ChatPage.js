@@ -11,6 +11,7 @@ import SearchAllUsers from "../components/SearchAllUsers";
 import {Link} from "react-router-dom";
 import {useHttp} from "../hooks/http.hook";
 import Dialogs from "../components/Dialogs";
+import LodingUsers from '../components/LodingUsers';
 
 
 
@@ -84,7 +85,7 @@ const  a11yProps = (index) => {
 const ChatPage = () => {
 
     const [allContacts, setAllContacts] = useState([]);
-    const [allUsers, setAllUsers]  = useState(null)
+    const [allUsers, setAllUsers]  = useState([])
 
     const [tabValue, setTabValue] = useState(0);
     const [isContact, setIsContact] = useState(false)
@@ -100,7 +101,7 @@ const ChatPage = () => {
 
     const [loding, setLoding] = useState(false)
 
-console.log(dontReadMessCount);
+
 
 
     const auth = useContext(AuthContext)
@@ -131,11 +132,14 @@ console.log(dontReadMessCount);
     }
 
     const findAllUsers =  async () => {
+        setLoding(true)
       const res = await request('api/search');
         setAllUsers(res)
+        setLoding(false)
     }
 
     const userContacts = async () => {
+        setLoding(true)
        const res = await request('/api/contacts',
            'POST',
            JSON.stringify({userId: user.id}),
@@ -143,11 +147,13 @@ console.log(dontReadMessCount);
            })
 
         setAllContacts(res)
+        setLoding(false)
     }
 
 
 
     useEffect(() => {
+        
         if(user) {
             request(
                 '/api/allUserRooms',
@@ -174,6 +180,7 @@ console.log(dontReadMessCount);
 
                 })
         }
+        
 
     }, [user, roomMess,trigerGroup])
 
@@ -253,11 +260,12 @@ console.log(dontReadMessCount);
                         room_avatar: item.users[0].url_avatar
             }
         })
-        
+        setMessStatus(room[0].id)
         setIsContact(true)
         setDialog(roomName)
         joinRoom(room[0].id)
         leaveRoom()
+        setTabValue(0)
 
     }
 
@@ -393,11 +401,11 @@ console.log(dontReadMessCount);
                             <Tabs value={tabValue} onChange={handleChange} aria-label="simple tabs example" className={classes.menuPanel}>
                               
                                  <Tab component={Link} to='/mess'  label={
-                                      <Badge
-                                      badgeContent={dontReadMessCount} 
-                                      color="secondary">
-                                          <Icon><span className="material-icons.md-18">mail</span></Icon>
-                                          </Badge>
+                                    <Badge
+                                        badgeContent={dontReadMessCount > 0? dontReadMessCount: null} 
+                                        color="secondary">
+                                        <Icon><span className="material-icons.md-18">mail</span></Icon>
+                                    </Badge>
                                  }{...a11yProps(0)} className={classes.btn} />
                                
                                 <Tab component={Link} to='/contacts' onClick={userContacts} label={<Icon><span className="material-icons.md-18">perm_contact_calendar</span></Icon>} {...a11yProps(1)} className={classes.btn} />
@@ -406,27 +414,34 @@ console.log(dontReadMessCount);
                             </Tabs>
                         </AppBar>
                         <TabPanel value={tabValue} index={0}>
+                             
                             <UserListMessages
                                 rooms={rooms}
                                 openRoom={openRoomMess}
                                 allContacts={allContacts}
                                 createGroupRoom={createGroupRoom}
-                            />
+                        />
+                            
+                            
 
                         </TabPanel>
                         <TabPanel value={tabValue} index={1}>
+                        {loding? <LodingUsers/>: 
                             <UsersContacts
                                 contacts={allContacts}
                                 openRoom={openRoomModal}
                                 removeContact={removeContact}
                             />
+                        }
                         </TabPanel>
                         <TabPanel value={tabValue} index={2}>
+                        {loding ? <LodingUsers/>: 
                             <SearchAllUsers
                                 allUsers={allUsers}
                                 addContact={addContact}
                                 authUser={user.id}
                             />
+                        }
                         </TabPanel>
                         <TabPanel value={tabValue} index={3}>
                             <UserSettings

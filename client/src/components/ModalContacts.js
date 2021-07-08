@@ -4,6 +4,7 @@ import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
 import {Avatar, Box, Button} from "@material-ui/core";
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -72,6 +73,7 @@ export default function ModalContacts({open, handleClose, user ,onOpenRoom, onRe
 
                     <Box className={classes.info} mt={2}>
                         <Button
+                            
                             variant={'outlined'}
                             className={classes.btn}
                             onClick={() => onOpenRoom(id)}
