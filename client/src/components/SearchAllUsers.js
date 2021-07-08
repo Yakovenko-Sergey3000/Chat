@@ -10,7 +10,6 @@ import {
     Badge
 } from '@material-ui/core'
 import {makeStyles, withStyles} from "@material-ui/core/styles";
-import LodingUsers from "./LodingUsers";
 import ModalAddContact from "./ModalAddContact";
 
 
@@ -61,9 +60,12 @@ const SearchAllUsers = ({allUsers, addContact, authUser}) => {
         addContact(id)
         setOpenModal(false)
     }
-    if(!allUsers) {
+
+   
+    
+    if(allUsers.length === 1) {
         return (
-            <Typography>Вы первый пользователь</Typography>
+            <Typography style={{margin: '10px'}}>Вы первый пользователь =)</Typography>
         )
     }
 

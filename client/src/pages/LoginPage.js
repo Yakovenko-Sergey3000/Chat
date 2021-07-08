@@ -49,7 +49,9 @@ const LoginPage = () => {
         setForm({...form, [e.target.name]: e.target.value})
     }
 
-   
+    const handleClose = () => {
+        setResponce({...responce, open: false});
+      };
 
     const {open, horizontal, vertical, msg} = responce;
 
@@ -87,6 +89,7 @@ const LoginPage = () => {
                
 
             <Snackbar
+                onClose={handleClose}
                 message={msg}
                 open={open}
                 anchorOrigin={{horizontal, vertical}}

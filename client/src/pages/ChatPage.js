@@ -90,9 +90,10 @@ const ChatPage = () => {
     const [tabValue, setTabValue] = useState(0);
     const [isContact, setIsContact] = useState(false)
     const [rooms, setRooms] = useState([])
+    const auth = useContext(AuthContext)
+    
 
-
-    const [user, setUser] = useState('')
+    const [user, setUser] = useState({})
     const { request } = useHttp()
     const [dialog, setDialog] = useState([])
     const [roomMess, setRoomMess] = useState([])
@@ -104,7 +105,7 @@ const ChatPage = () => {
 
 
 
-    const auth = useContext(AuthContext)
+    
     const classes = useStyles()
 
 
@@ -112,16 +113,19 @@ const ChatPage = () => {
         setTabValue(newValue);
     };
 
-
+   
+    
+    useEffect(() => {
+            if(auth.user) {
+                setUser(auth.user)
+            }
+    }, [auth])
 
     useEffect(() => {
-        let user = auth.user
-        if(user) {
-
-            setUser(user)
+        if(user.id) {
             socket.emit('user:login', user.id)
         }
-    }, [auth.user])
+    }, [user])
 
 
 
@@ -154,7 +158,8 @@ const ChatPage = () => {
 
     useEffect(() => {
         
-        if(user) {
+        if(user.id) {
+            
             request(
                 '/api/allUserRooms',
                 'POST',
@@ -391,7 +396,8 @@ const ChatPage = () => {
         setDialog([])
     }
 
-
+    
+    
     return (
 
             <Container fixed>

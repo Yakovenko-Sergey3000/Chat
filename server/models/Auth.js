@@ -6,11 +6,11 @@ class Auth {
         this.adapter = servise
     }
    async createUser({email, password}) {
+    const candidate = await this.adapter.findUser('email',email) // (nameColl, params)
+    if(candidate.length) {
+        throw new Error('Такой пользователь существует')
+    }
       try {
-          const candidate = await this.adapter.findUser('email',email) // (nameColl, params)
-          if(candidate.length) {
-              throw new Error('Такой пользователь существует')
-          }
           const hashPass = await bcrypt.hash(password, 7);
             const nickName = email.split('@')[0]
 
@@ -21,22 +21,22 @@ class Auth {
     }
 
     async loginUser({email, password}) {
-
+      const candidate = await this.adapter.findUser('email',email) // (nameColl, params)
+      if(!candidate.length ) {
+        throw new Error('Пользователя не существует')
+    } 
+      if(!await bcrypt.compare(password, candidate[0].password)) {
+        throw new Error('Неверный пароль')
+      }
+      
       try {
-          const candidate = await this.adapter.findUser('email',email) // (nameColl, params)
-            const {id, nick_name,  sity, status, url_avatar} = candidate[0];
-              if(!candidate.length) {
-                  throw new Error('Пользователя не существует')
-              }
-
-             if(!await bcrypt.compare(password, candidate[0].password)) {
-                 throw new Error('Неверный пароль')
-             }
-
-            return {id, nick_name,email,sity,status, url_avatar}
+        const {id, nick_name,  sity, status, url_avatar} = candidate[0];
+        return {id, nick_name,email,sity,status, url_avatar}
+            
 
       } catch (e) {
-          throw e
+        console.log(e.message);
+        throw e
       }
 
     }

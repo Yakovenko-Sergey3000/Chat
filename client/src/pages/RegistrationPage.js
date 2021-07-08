@@ -58,13 +58,17 @@ const RegistarionPage = () => {
 
             try {
                 const data = await request('api/auth/registration', 'POST', JSON.stringify(validDate) , {'Content-Type': 'application/json'});
-                auth.login(data.idSess, data.user[0])
+                auth.login(data.idSess, data.user)
             } catch (e) {
-                const test = e.message.split(',').join('***');
-                setResponce({...responce, open: true, msg: test}) //TODO update test
+                const errMess = e.message.split(',').join(' или ');
+                setResponce({...responce, open: true, msg: errMess}) //TODO update test
             }
 
         }
+
+        const handleClose = () => {
+            setResponce({...responce, open: false});
+          };
 
 
     const {open, horizontal, vertical, msg} = responce;
@@ -113,6 +117,7 @@ const RegistarionPage = () => {
 
 
                    <Snackbar
+                        onClose={handleClose}
                        message={msg}
                        open={open}
                        anchorOrigin={{horizontal, vertical}}

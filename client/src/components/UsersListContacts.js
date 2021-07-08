@@ -119,7 +119,7 @@ const UserContacts = ({contacts, openRoom, removeContact}) => {
     const render = RenderList()
 
     if(!contacts.length) {
-        return <Typography>У вас нет контактов</Typography>
+        return <Typography style={{margin: '10px'}}>У вас нет контактов</Typography>
     }
     return (
         <>

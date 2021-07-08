@@ -12,15 +12,15 @@ router.post('/registration',
         }),
         async (req,res) => {
             const err = validationResult(req)
-
+                
             try {
                 if(!err.isEmpty()) {
-                    throw new Error(err.array().map(item => item.msg))
+                   throw new Error(err.array().map(item => item.msg)) 
                 } else  {
                   const dataUser =  await authUser.createUser(req.body)
                         req.session.user = dataUser;
                         res.cookie('idSess', req.sessionID)
-                        res.json({idSess: req.sessionID, user: dataUser})
+                        res.json({idSess: req.sessionID, user: dataUser[0]})
                 }
             } catch (e) {
                 res.status(400).json(e.message)

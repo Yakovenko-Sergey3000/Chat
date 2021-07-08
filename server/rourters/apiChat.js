@@ -75,6 +75,7 @@ router.post('/createGroup', async (req, res) => {
 
 
 router.post('/allUserRooms', async (req, res) => {
+    
     const rooms = await user.allUserRooms(req.body)
     res.json(rooms)
 })

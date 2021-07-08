@@ -8,8 +8,8 @@ import LodingChat from "./components/LodingChat";
 
 const App = () => {
     const {login, idSess, user, logout, loding} = useAuth()
+    
     const isAuthenticated = !!idSess;
-
     const routes = useRoutes(isAuthenticated)
 
     if(loding){

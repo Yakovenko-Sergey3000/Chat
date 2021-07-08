@@ -5,8 +5,8 @@ import LoginPage from "../pages/LoginPage";
 import RegistarionPage from "../pages/RegistrationPage";
 
 
-const useRoutes = (isAuth) => {
 
+const useRoutes = (isAuth) => {
         if(isAuth) {
             return (
                 <Switch>

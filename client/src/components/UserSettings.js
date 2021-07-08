@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Avatar, Grid, Button, Input, InputLabel, Icon, Box} from '@material-ui/core'
 import {makeStyles} from "@material-ui/core/styles";
 import {useCookies} from "react-cookie";
@@ -35,9 +35,9 @@ const useStyles = makeStyles({
 
 const UserSettings = ({logout, user}) => {
     const classes = useStyles()
-    const {nick_name, sity = '', id, url_avatar} = user;
-    const [nickInput, setNickInput] = useState(nick_name)
-    const [sityInput, setSityInput] = useState(sity)
+    const {nick_name, sity, id, url_avatar} = user;
+    const [nickInput, setNickInput] = useState('')
+    const [sityInput, setSityInput] = useState('')
     const [avatar, setAvatar] = useState('')
     const [disableBtn, setDisableBtn] = useState(true)
     const [cookie] = useCookies(['idSess'])
@@ -45,7 +45,10 @@ const UserSettings = ({logout, user}) => {
 
 
     useEffect(() => {
-        setSityInput(sity)
+        if(sity) {
+            setSityInput(sity)
+        }
+        
         setNickInput(nick_name)
 
     }, [])
