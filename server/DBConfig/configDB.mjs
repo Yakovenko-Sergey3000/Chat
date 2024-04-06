@@ -1,7 +1,6 @@
-require('dotenv').config();
-const Knex = require('knex');
-
-module.exports = Knex({
+import {config} from "dotenv"; config()
+import Knex from 'knex';
+export const DB = new Knex({
     client: 'pg',
     connection: {
         user: process.env.DB_USER,

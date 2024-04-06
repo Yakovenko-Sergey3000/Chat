@@ -1,20 +1,15 @@
-const {Router} = require('express');
+import { Router } from "express";
+import Service from  "../controllers/authController.mjs";
+import AuthUser from "../models/Auth.mjs";
+import User from '../models/User.mjs'
+import UserController from '../controllers/userController.mjs'
+
 const router = Router();
-const Service = require('../controllers/authController');
-const AuthUser = require('../models/Auth');
-
-const User = require('../models/User')
-const UserController = require('../controllers/userController')
-
 const user = new User(new UserController())
-
-
 const authUser = new AuthUser(new Service());
-
 const isLogin = async (req,res,next) => {
 
     try{
-
         const dataUser= await authUser.isAuth(req.cookies.idSess)
         if(!dataUser) {
          return
@@ -88,4 +83,4 @@ router.post('/getMessStatus', async (req,res) => {
 
 
 
-module.exports = router;
+export default router;

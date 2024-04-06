@@ -1,15 +1,14 @@
-const { Router } = require('express')
+import { Router } from "express";
+import {config} from "dotenv";config();
+import User from '../models/User.mjs'
+import UserController from '../controllers/userController.mjs'
+
 const router = Router();
-require('dotenv').config()
-
-const User = require('../models/User')
-const UserController = require('../controllers/userController')
-
 const user = new User(new UserController())
 
-const multer = require('multer');
+import multer from 'multer';
 
-const config = multer.diskStorage({
+const multerConfig = multer.diskStorage({
    destination: function (req, res, cb)  {
       cb(null, '/src/app/public');
    },
@@ -19,13 +18,11 @@ const config = multer.diskStorage({
 });
 
 const upload = multer({
-   storage: config,
+   storage: multerConfig,
 }).single('avatar');
 
 
 router.post('/settings', upload, async (req, res) => {
-
-
 
    res.redirect('/')
    if(req.file) {
@@ -34,9 +31,7 @@ router.post('/settings', upload, async (req, res) => {
    } else {
       await user.updateSettings({...req.body})
    }
-
-
 })
 
 
-module.exports = router;
+export default router;
