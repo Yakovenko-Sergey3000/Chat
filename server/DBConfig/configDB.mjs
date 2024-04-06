@@ -1,12 +1,12 @@
-import {config} from "dotenv"; config()
 import Knex from 'knex';
+import {CONFIG} from "../config/env.config.mjs";
 export const DB = new Knex({
     client: 'pg',
     connection: {
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
-        database: process.env.DB_DATABASE
+        user: CONFIG.DB_USER,
+        password: CONFIG.DB_PASSWORD,
+        host: CONFIG.DB_HOST,
+        port: CONFIG.DB_PORT,
+        database: CONFIG.DB_DATABASE
     }
 })

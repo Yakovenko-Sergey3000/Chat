@@ -9,10 +9,11 @@ class UserService {
       throw new Error(`Пользователь ${email} уже существует`);
     } else {
       const hashPass = await bcrypt.hash(password, 7);
+      const timestamp = new Date()
 
       return await this.db("users")
         .returning("id")
-        .insert({ email, password: hashPass });
+        .insert({ email, password: hashPass, created_at: timestamp, updated_at: timestamp });
     }
   }
   async update({ id, data }) {}

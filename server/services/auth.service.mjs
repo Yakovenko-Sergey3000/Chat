@@ -18,6 +18,14 @@ class AuthService {
     delete candidate.password;
     done(candidate);
   };
+
+  serialiseUser = async (userId) => {
+    const user = await this.db("users").where({ id: userId }).first();
+
+    if (user) delete user.password;
+
+    return user;
+  }
 }
 
 export default AuthService;
