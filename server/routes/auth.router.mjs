@@ -2,13 +2,13 @@ import { Router } from "express";
 import { validationResult } from "express-validator";
 import { Authenticator } from "../lib/authenticator/index.mjs";
 import UserService from "../services/user.service.mjs";
-import { UserRegistrationValidateSchema } from "../utils/validation-schemases/user-registration.validate-schema.mjs";
+import {RegistrationUserValidateSchema} from "././validation-routes/registration-user.validate-schema.mjs";
 
 const router = Router();
 const userService = new UserService();
 
 router
-  .post("/registration", UserRegistrationValidateSchema, async (req, res) => {
+  .post("/registration", RegistrationUserValidateSchema, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.json(errors.mapped());

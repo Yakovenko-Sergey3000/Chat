@@ -1,6 +1,5 @@
-import { checkSchema } from "express-validator";
-
-export const UserRegistrationValidateSchema = checkSchema({
+import {checkSchema} from "express-validator";
+export const RegistrationUserValidateSchema = checkSchema({
   email: {
     isEmail: {
       errorMessage: "Некорректный email",
