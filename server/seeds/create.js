@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
+const { v4 } = require("uuid");
 exports.seed = function (knex) {
-  // Deletes ALL existing entries
   return knex("users")
     .del()
     .then(async function () {
@@ -9,6 +9,7 @@ exports.seed = function (knex) {
 
       return knex("users").insert([
         {
+          user_id: v4(),
           email: "user@fakeqqqq.com",
           name: "user",
           password,
@@ -16,6 +17,7 @@ exports.seed = function (knex) {
           updated_at: timestamp,
         },
         {
+          user_id: v4(),
           email: "user2@fakeqqqq.com",
           name: "user1",
           password,
@@ -23,6 +25,7 @@ exports.seed = function (knex) {
           updated_at: timestamp,
         },
         {
+          user_id: v4(),
           email: "user3@fakeqqqq.com",
           name: "user2",
           password,

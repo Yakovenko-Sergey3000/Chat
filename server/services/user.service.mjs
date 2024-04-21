@@ -1,5 +1,7 @@
 import { DB } from "../DBConfig/configDB.mjs";
 import bcrypt from "bcrypt";
+import { v4 } from "uuid";
+
 class UserService {
   constructor() {
     this.db = DB;
@@ -9,11 +11,16 @@ class UserService {
       throw new Error(`Пользователь ${email} уже существует`);
     } else {
       const hashPass = await bcrypt.hash(password, 7);
-      const timestamp = new Date()
+      const timestamp = new Date();
 
-      return await this.db("users")
-        .returning("id")
-        .insert({ email, password: hashPass, created_at: timestamp, updated_at: timestamp });
+      return await this.db("users").returning("user_id").insert({
+        user_id: v4(),
+        name: email,
+        email,
+        password: hashPass,
+        created_at: timestamp,
+        updated_at: timestamp,
+      });
     }
   }
   async update({ id, data }) {}

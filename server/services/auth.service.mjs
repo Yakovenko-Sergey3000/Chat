@@ -20,12 +20,12 @@ class AuthService {
   };
 
   serialiseUser = async (userId) => {
-    const user = await this.db("users").where({ id: userId }).first();
+    const user = await this.db("users").where({ user_id: userId }).first();
 
     if (user) delete user.password;
 
     return user;
-  }
+  };
 }
 
 export default AuthService;

@@ -52,7 +52,7 @@ class AuthAuthenticator {
 
       res.clearCookie("connect.sid");
     } catch (e) {
-      console.error(e);
+      throw new Error(e);
     }
   }
 
@@ -96,7 +96,7 @@ class AuthAuthenticator {
           return res.redirect(failRedirect);
         }
 
-        this.createSession(req, res, { userId: user.id });
+        this.createSession(req, res, { userId: user.user_id });
 
         if (successRedirect) {
           return res.redirect(successRedirect);

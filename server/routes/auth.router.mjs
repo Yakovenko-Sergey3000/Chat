@@ -1,31 +1,24 @@
 import { Router } from "express";
-import { validationResult } from "express-validator";
 import { Authenticator } from "../lib/authenticator/index.mjs";
 import UserService from "../services/user.service.mjs";
-import {RegistrationUserValidateSchema} from "././validation-routes/registration-user.validate-schema.mjs";
+import { RegistrationUserValidateSchema } from "././validation-routes/index.mjs";
+import AuthController from "../controllers/auth.controller.mjs";
 
 const router = Router();
-const userService = new UserService();
+const authController = new AuthController();
+
+router.use((req, _, next) => {
+  req.userService = new UserService();
+
+  next();
+});
 
 router
-  .post("/registration", RegistrationUserValidateSchema, async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.json(errors.mapped());
-    }
-
-    try {
-      const [userId] = await userService.create({
-        email: req.body.email,
-        password: req.body.password,
-      });
-
-      req.createSession({ userId });
-      res.redirect("/api/auth/current_user");
-    } catch (e) {
-      res.status(400).json({ error_message: e.message });
-    }
-  })
+  .post(
+    "/registration",
+    RegistrationUserValidateSchema,
+    authController.registration,
+  )
   .post(
     "/login",
     Authenticator.authenticateUser({
@@ -33,15 +26,8 @@ router
       failRedirect: "/api/auth/error_message",
     }),
   )
-  .get("/logout", Authenticator.checkUser, (req, res) => {
-    req.removeSession();
-    res.json({ message: "Success" });
-  })
-  .get("/error_message", (_, res) =>
-    res.json({ error_message: "Неверный email или password" }).status(404),
-  )
-  .get("/current_user", Authenticator.checkUser, (req, res) =>
-    res.json({ user: req.user }).status(200),
-  );
+  .get("/logout", Authenticator.checkUser, authController.logout)
+  .get("/error_message", authController.errorMessage)
+  .get("/current_user", Authenticator.checkUser, authController.currentUser);
 
 export default router;
