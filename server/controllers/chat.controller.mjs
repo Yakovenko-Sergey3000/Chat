@@ -24,6 +24,18 @@ class ChatController {
       });
     }
 
+    if (typeRoom === TYPE_ROOM.group && members.length <= 1) {
+      return res.json({
+        error: `You cannot add just 1 user. If you want to add just 1 user, create a room with typeRoom: '${TYPE_ROOM.direct}'`,
+      });
+    }
+
+    if (members.find((memberId) => memberId === req.user.user_id)) {
+      return res.json({
+        error: `You cannot add a user who is currently logged into the system with id ${req.user.user_id}`,
+      });
+    }
+
     try {
       if (typeRoom === TYPE_ROOM.direct) {
         const room = await req.roomService.checkRoomBetweenUsers({
