@@ -1,4 +1,3 @@
-import { validationResult } from "express-validator";
 import { TYPE_ROOM } from "../enums/index.mjs";
 
 class ChatController {
@@ -10,13 +9,8 @@ class ChatController {
     res.json({ rooms });
   };
   createRoom = async (req, res) => {
-    const error = validationResult(req);
     let room_id = null;
     const { typeRoom = TYPE_ROOM.direct, members = [] } = req.body;
-
-    if (!error.isEmpty()) {
-      return res.json(error.mapped());
-    }
 
     if (typeRoom === TYPE_ROOM.direct && members.length > 1) {
       return res.json({
@@ -63,20 +57,58 @@ class ChatController {
   };
 
   getRoomById = async (req, res) => {
-    const error = validationResult(req);
-
-    if (!error.isEmpty()) {
-      return res.json(error.mapped());
-    }
-
     try {
-      const members = await req.roomService.getMembersByIdRoom({
-        room_id: req.query.room_id,
+      const [members, messages] = await Promise.all([
+        req.roomService.getMembersByIdRoom({
+          room_id: req.query.room_id,
+        }),
+        req.messageService.getMessageByRoomId({
+          roomId: req.query.room_id,
+        }),
+      ]);
+
+      const userMess = messages.reduce((acc, mess) => {
+        if (mess.user_id === req.user.id) {
+          acc.push(mess.id);
+        }
+
+        return acc;
+      }, []);
+
+      await req.messageService.changeReadStatus({
+        user_id: req.user.id,
+        messages_ids: userMess,
       });
 
-      res.json({ members });
+      res.json({ members, messages });
     } catch (e) {
+      console.log(e);
       res.json({ error_message: e.response }).status(400);
+    }
+  };
+
+  createMessage = async (req, res) => {
+    const { room_id, message } = req.body;
+
+    try {
+      const room = await req.roomService.getRoomById({ room_id });
+
+      if (!room) {
+        return res.json({
+          error: `Комната с id ${room_id} не найдена`,
+        });
+      }
+
+      const messageRes = await req.messageService.create({
+        user_id: req.user.id,
+        room_id: room.id,
+        message,
+      });
+
+      res.json(messageRes);
+    } catch (e) {
+      res.json({ error_message: e }).status(400);
+      console.log(e);
     }
   };
 }

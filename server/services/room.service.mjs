@@ -40,6 +40,9 @@ class RoomService {
     }
   };
 
+  getRoomById = async ({ room_id }) =>
+    await this.db("rooms").where("rooms.room_id", room_id).first();
+
   checkRoomBetweenUsers = async ({ firstUserId, secondUserId }) =>
     await this.db("rooms")
       .leftJoin("user_rooms as usr1", "rooms.id", "usr1.room_id")
