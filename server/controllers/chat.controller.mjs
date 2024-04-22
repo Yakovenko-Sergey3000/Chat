@@ -62,23 +62,27 @@ class ChatController {
         req.roomService.getMembersByIdRoom({
           room_id: req.query.room_id,
         }),
-        req.messageService.getMessageByRoomId({
-          roomId: req.query.room_id,
-        }),
+        req.messageService
+          .getMessageByRoomId({
+            roomId: req.query.room_id,
+          })
+          .then(async (messages) => {
+            const dontReadMessIds = messages.reduce((acc, mess) => {
+              if (mess.user_id === req.user.id && mess.read === false) {
+                acc.push(mess.id);
+              }
+
+              return acc;
+            }, []);
+
+            await req.messageService.changeReadStatus({
+              user_id: req.user.id,
+              messages_ids: dontReadMessIds,
+            });
+
+            return messages.map((mess) => ({ ...mess, read: true }));
+          }),
       ]);
-
-      const userMess = messages.reduce((acc, mess) => {
-        if (mess.user_id === req.user.id) {
-          acc.push(mess.id);
-        }
-
-        return acc;
-      }, []);
-
-      await req.messageService.changeReadStatus({
-        user_id: req.user.id,
-        messages_ids: userMess,
-      });
 
       res.json({ members, messages });
     } catch (e) {

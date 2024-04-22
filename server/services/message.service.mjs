@@ -20,7 +20,8 @@ class MessageService {
     await this.db("room_messages")
       .where("user_id", user_id)
       .whereIn("id", messages_ids)
-      .update("read", true);
+      .update("read", true)
+      .returning(["room_messages.*"]);
 
   getMessageByRoomId = async ({ roomId }) =>
     await this.db("room_messages")
