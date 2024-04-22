@@ -23,10 +23,11 @@ class UserService {
       });
     }
   }
-  async update({ id, data }) {}
-  async remove({ id }) {}
-  async getById({ id }) {}
-  async getAll() {}
+
+  getUserByUserIds = async ({ userIds }) =>
+    await this.db("users").whereIn("user_id", userIds);
+  getUserByUserId = async ({ userId }) =>
+    await this.db("users").where("user_id", userId);
 }
 
 export default UserService;
