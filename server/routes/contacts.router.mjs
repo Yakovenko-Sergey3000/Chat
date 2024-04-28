@@ -2,7 +2,6 @@ import { Router } from "express";
 import { Authenticator } from "../lib/authenticator/index.mjs";
 import CheckUser from "../middleware/check-user.mjs";
 import UserService from "../services/user.service.mjs";
-import UserController from "../controllers/user.controller.mjs";
 import ContactsController from "../controllers/contacts.controller.mjs";
 import ContactsService from "../services/contacts.service.mjs";
 import { AddContactsValidationSchema } from "./validation-routes/index.mjs";
