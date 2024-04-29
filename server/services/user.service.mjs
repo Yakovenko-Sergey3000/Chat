@@ -8,7 +8,10 @@ class UserService {
   }
   async create({ email, password }) {
     if (await this.db("users").where({ email }).first()) {
-      throw new Error(`Пользователь ${email} уже существует`);
+      throw {
+        message: `Такой email уже существует`,
+        code: "email",
+      };
     } else {
       const hashPass = await bcrypt.hash(password, 7);
       const timestamp = new Date();
