@@ -1,8 +1,16 @@
+"use client";
 import UiAvatar from "@/app/chat/_components/Shared/Ui/UiAvatar";
 import { GrUserSettings } from "react-icons/gr";
 import { IoColorPaletteOutline } from "react-icons/io5";
+import { LuLogOut } from "react-icons/lu";
+import { useCookies } from "next-client-cookies";
+import { useRouter } from "next/navigation";
+import { PagesPaths } from "@/app/chat/_components/Shared/Paths/PagesPaths";
 
 export default function Page() {
+  const router = useRouter();
+  const cookiesStore = useCookies();
+
   const SETTING_ITEMS = [
     {
       label: "Настройки профиля",
@@ -42,6 +50,16 @@ export default function Page() {
             {data.label}
           </div>
         ))}
+      </div>
+      <div
+        className={"mt-8 flex justify-center gap-2 cursor-pointer"}
+        onClick={() => {
+          cookiesStore.remove("connect.sid");
+          router.push(PagesPaths.login);
+        }}
+      >
+        <LuLogOut size={25} />
+        <p className={"mr-4"}>Выйти</p>
       </div>
     </div>
   );
