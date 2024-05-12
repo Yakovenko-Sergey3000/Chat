@@ -3,6 +3,10 @@ import type { NextRequest } from "next/server";
 import ServerFetcher from "@/app/chat/_components/Shared/Utils/ServerFetcher";
 
 export async function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname === "/") {
+    return NextResponse.redirect(new URL("/chat/messages", request.url));
+  }
+
   if (request.nextUrl.pathname.startsWith("/chat")) {
     const res = await ServerFetcher("/api/auth/current_user");
     const { user } = await res.json();
@@ -36,5 +40,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/chat/:path*", "/login/:path*", "/registration/:path*"],
+  matcher: ["/", "/chat/:path*", "/login/:path*", "/registration/:path*"],
 };
