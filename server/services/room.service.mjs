@@ -59,7 +59,7 @@ class RoomService {
     await this.db("rooms")
       .leftJoin("user_rooms", "user_rooms.room_id", "rooms.id")
       .where("user_rooms.user_id", userId)
-      .select("rooms.room_id", "rooms.type_room", "rooms.name");
+      .select("rooms.id", "rooms.room_id", "rooms.type_room", "rooms.name");
 
   getMembersByIdRoom = async ({ room_id }) =>
     await this.db("rooms")

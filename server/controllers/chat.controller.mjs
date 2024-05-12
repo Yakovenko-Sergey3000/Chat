@@ -6,14 +6,12 @@ class ChatController {
       userId: req.user.id,
     });
 
-    for (let t of rooms) {
-      console.log(t);
-      const r = await req.messageService.getLastMessageByRoomId({
-        roomId: t.id,
-        userId: req.user.id,
+    for (let room of rooms) {
+      const res = await req.messageService.getLastMessageByRoomId({
+        roomId: room.id,
       });
 
-      console.log(r);
+      room["last_message"] = res;
     }
 
     res.json({ rooms });

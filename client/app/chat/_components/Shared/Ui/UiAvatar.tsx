@@ -24,7 +24,7 @@ export default function UiAvatar({
           className={"object-cover rounded-full"}
         />
       ) : (
-        <FaUserLarge size={50} />
+        <FaUserLarge size={"50%"} />
       )}
     </div>
   );

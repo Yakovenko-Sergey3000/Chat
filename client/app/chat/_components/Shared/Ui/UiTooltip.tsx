@@ -28,7 +28,7 @@ export default function UiTooltip({
         <span
           ref={tooltipRef}
           className={`bg-slate-900/60 p-2 rounded text-sm absolute invisible group-hover:visible delay-${delay}
-        opacity-0 top-full mt-2 group-hover:opacity-100 whitespace-nowrap`}
+        opacity-0 top-full mt-2 group-hover:opacity-100 whitespace-nowrap z-10`}
         >
           {label}
         </span>

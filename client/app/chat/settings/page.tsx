@@ -30,7 +30,7 @@ export default function Page() {
       </div>
       <p className={"mt-4 text-center"}>sergeyyskovenko15@gmail.com</p>
 
-      <div className={"mt-8 flex flex-col gap-2"}>
+      <div className={"mt-8 flex flex-col gap-2 px-4"}>
         {SETTING_ITEMS.map((data) => (
           <div
             key={data.label}

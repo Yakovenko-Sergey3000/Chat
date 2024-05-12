@@ -35,9 +35,12 @@ class MessageService {
       .and.where("user_id", userId);
 
   getLastMessageByRoomId = async ({ roomId, userId }) =>
-    await this.db("room_messages")
+    await this.db("room_messages as rm")
       .where("room_id", roomId)
-      .and.where("user_id", userId);
+      .leftJoin("users as u", "rm.user_id", "u.id")
+      .orderBy("rm.id", "desc")
+      .select("rm.*", "u.email", "u.name")
+      .first();
 }
 
 export default MessageService;

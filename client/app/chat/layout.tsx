@@ -28,7 +28,7 @@ export default function RootLayout({
           }
         >
           <Navigation />
-          <div className={"px-4"}>{children}</div>
+          {children}
         </div>
         <Room />
       </div>
