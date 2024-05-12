@@ -34,7 +34,7 @@ export default function Page() {
           <IoSearchOutline />
         </div>
         <UiInput
-          className={"h-8 rounded-xl pl-8 text-base"}
+          className={"h-2 rounded-xl pl-8 text-base"}
           inputProps={{
             placeholder: "Search...",
           }}
