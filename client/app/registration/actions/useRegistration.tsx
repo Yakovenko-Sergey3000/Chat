@@ -1,7 +1,7 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { ApiRegistration } from "@/app/registration/api";
-import { FormError } from "@/components/Shared/Utils/form-error";
+import { FormError } from "@/app/chat/_components/Shared/Utils/FormError";
 
 export type RegistrationType = {
   email: string;

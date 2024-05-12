@@ -33,6 +33,11 @@ class MessageService {
     await this.db("room_messages")
       .where("room_id", roomId)
       .and.where("user_id", userId);
+
+  getLastMessageByRoomId = async ({ roomId, userId }) =>
+    await this.db("room_messages")
+      .where("room_id", roomId)
+      .and.where("user_id", userId);
 }
 
 export default MessageService;

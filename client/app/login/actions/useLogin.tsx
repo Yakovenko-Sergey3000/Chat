@@ -1,8 +1,8 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { ApiLogin } from "@/app/login/api";
-import { FormError } from "@/components/Shared/Utils/form-error";
-import { PagesPaths } from "@/components/Shared/Paths/pages-paths";
+import { FormError } from "@/app/chat/_components/Shared/Utils/FormError";
+import { PagesPaths } from "@/app/chat/_components/Shared/Paths/PagesPaths";
 import { useRouter } from "next/navigation";
 
 export type LoginType = {

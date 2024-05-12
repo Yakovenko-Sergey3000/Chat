@@ -1,4 +1,4 @@
-import { PagesPaths } from "@/components/Shared/Paths/pages-paths";
+import { PagesPaths } from "@/app/chat/_components/Shared/Paths/PagesPaths";
 
 export default function AnotherLinks() {
   return (

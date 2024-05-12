@@ -6,6 +6,16 @@ class ChatController {
       userId: req.user.id,
     });
 
+    for (let t of rooms) {
+      console.log(t);
+      const r = await req.messageService.getLastMessageByRoomId({
+        roomId: t.id,
+        userId: req.user.id,
+      });
+
+      console.log(r);
+    }
+
     res.json({ rooms });
   };
   createRoom = async (req, res) => {

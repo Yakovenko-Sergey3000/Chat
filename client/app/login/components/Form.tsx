@@ -1,5 +1,5 @@
-import UiInput from "@/components/Shared/Ui/UiInput";
-import UiButton from "@/components/Shared/Ui/UiButton";
+import UiInput from "@/app/chat/_components/Shared/Ui/UiInput";
+import UiButton from "@/app/chat/_components/Shared/Ui/UiButton";
 import { Control, Controller } from "react-hook-form";
 import { LoginType } from "@/app/login/actions/useLogin";
 
